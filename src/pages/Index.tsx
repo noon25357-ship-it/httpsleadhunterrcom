@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import SearchPanel from "@/components/SearchPanel";
 import LeadCard from "@/components/LeadCard";
@@ -7,6 +8,7 @@ import ContactModal from "@/components/ContactModal";
 import TopAction from "@/components/TopAction";
 import EmailCapture from "@/components/EmailCapture";
 import ScanningOverlay from "@/components/ScanningOverlay";
+import LandingSections from "@/components/LandingSections";
 import { generateMockLeads, type Lead } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
 
@@ -55,10 +57,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <HeroSection />
 
-      <div className="relative -mt-12 z-20 pb-20">
-        <SearchPanel onSearch={handleSearch} isSearching={isSearching} />
+      <div className="relative z-20 pb-20">
+        <div className="-mt-12">
+          <SearchPanel onSearch={handleSearch} isSearching={isSearching} />
+        </div>
 
         <div className="max-w-5xl mx-auto px-4 mt-10">
           <AnimatePresence mode="wait">
@@ -95,6 +100,9 @@ const Index = () => {
           )}
         </div>
       </div>
+
+      {/* Landing page sections */}
+      <LandingSections />
 
       <ContactModal lead={selectedLead} onClose={() => setSelectedLead(null)} />
     </div>
