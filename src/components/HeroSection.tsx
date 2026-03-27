@@ -1,44 +1,10 @@
 import { motion } from "framer-motion";
+import HeroRadar from "./HeroRadar";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden gradient-mesh">
-      {/* Radar Background - subtle, premium */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-        <div className="relative w-[500px] h-[500px] md:w-[650px] md:h-[650px]">
-          {/* Concentric rings */}
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="absolute rounded-full border border-primary/[0.07]"
-              style={{
-                inset: `${i * 12}%`,
-              }}
-            />
-          ))}
-          {/* Slow pulse rings */}
-          {[1, 2].map((i) => (
-            <div
-              key={`pulse-${i}`}
-              className="absolute inset-0 rounded-full border border-primary/[0.08]"
-              style={{
-                animation: `pulse-ring ${4 + i}s cubic-bezier(0.4,0,0.6,1) infinite`,
-                animationDelay: `${i * 1.5}s`,
-              }}
-            />
-          ))}
-          {/* Radar sweep - slow, subtle */}
-          <div
-            className="absolute inset-0 rounded-full"
-            style={{
-              background: "conic-gradient(from 0deg, transparent 0%, hsl(145 80% 42% / 0.08) 15%, transparent 30%)",
-              animation: "radar-sweep 6s linear infinite",
-            }}
-          />
-          {/* Center dot */}
-          <div className="absolute inset-[48%] rounded-full bg-primary/20 blur-md" />
-        </div>
-      </div>
+    <section className="relative min-h-[65vh] flex items-center justify-center overflow-hidden gradient-mesh">
+      <HeroRadar />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
