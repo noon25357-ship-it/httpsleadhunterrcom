@@ -1,16 +1,80 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import HeroSection from "@/components/HeroSection";
+import SearchPanel from "@/components/SearchPanel";
+import LeadCard from "@/components/LeadCard";
+import ContactModal from "@/components/ContactModal";
+import TopAction from "@/components/TopAction";
+import EmailCapture from "@/components/EmailCapture";
+import ScanningOverlay from "@/components/ScanningOverlay";
+import { generateMockLeads, type Lead } from "@/lib/leadData";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchCount, setSearchCount] = useState(0);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  const handleSearch = useCallback((city: string, category: string) => {
+    setIsSearching(true);
+    setLeads([]);
+    setHasSearched(false);
+
+    setTimeout(() => {
+      const results = generateMockLeads(city, category);
+      setLeads(results);
+      setIsSearching(false);
+      setHasSearched(true);
+      setSearchCount((c) => c + 1);
+    }, 1800);
+  }, []);
+
+  const showEmailCapture = searchCount >= 2 && hasSearched;
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background">
+      <HeroSection />
+
+      <div className="relative -mt-12 z-20 pb-20">
+        <SearchPanel onSearch={handleSearch} isSearching={isSearching} />
+
+        <div className="max-w-5xl mx-auto px-4 mt-10">
+          <AnimatePresence mode="wait">
+            {isSearching && <ScanningOverlay key="scan" />}
+          </AnimatePresence>
+
+          {hasSearched && !isSearching && (
+            <>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center text-muted-foreground mb-8 text-lg"
+              >
+                لقينا لك <span className="neon-text font-bold">{leads.length}</span> فرصة
+              </motion.p>
+
+              <TopAction leads={leads} />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {leads.map((lead, i) => (
+                  <LeadCard key={lead.id} lead={lead} index={i} onContact={setSelectedLead} />
+                ))}
+              </div>
+
+              {showEmailCapture && (
+                <div className="mt-12">
+                  <EmailCapture />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <ContactModal lead={selectedLead} onClose={() => setSelectedLead(null)} />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
