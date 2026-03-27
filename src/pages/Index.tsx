@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import SearchPanel from "@/components/SearchPanel";
@@ -8,6 +8,26 @@ import TopAction from "@/components/TopAction";
 import EmailCapture from "@/components/EmailCapture";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import { generateMockLeads, type Lead } from "@/lib/leadData";
+import { trackEvent } from "@/lib/analytics";
+
+const CountUp = ({ target }: { target: number }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<number>();
+
+  useEffect(() => {
+    let current = 0;
+    const step = Math.max(1, Math.floor(target / 15));
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      setCount(current);
+      if (current >= target) clearInterval(interval);
+    }, 60);
+    ref.current = interval as unknown as number;
+    return () => clearInterval(ref.current);
+  }, [target]);
+
+  return <span>{count}</span>;
+};
 
 const Index = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -20,6 +40,7 @@ const Index = () => {
     setIsSearching(true);
     setLeads([]);
     setHasSearched(false);
+    trackEvent("search", { city, category });
 
     setTimeout(() => {
       const results = generateMockLeads(city, category);
@@ -46,13 +67,16 @@ const Index = () => {
 
           {hasSearched && !isSearching && (
             <>
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center text-muted-foreground mb-8 text-lg"
+                className="text-center mb-8"
               >
-                لقينا لك <span className="neon-text font-bold">{leads.length}</span> فرصة
-              </motion.p>
+                <p className="text-lg text-foreground font-bold">
+                  👉 لقينا لك <span className="neon-text text-2xl"><CountUp target={leads.length} /></span> فرص جاهزة للبيع الآن
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">ابدأ بأفضلها (Hot) أولًا</p>
+              </motion.div>
 
               <TopAction leads={leads} />
 

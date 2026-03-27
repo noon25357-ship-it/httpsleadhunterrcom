@@ -14,9 +14,10 @@ const SearchPanel = ({ onSearch, isSearching }: SearchPanelProps) => {
 
   return (
     <motion.div
+      id="search"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6 }}
+      transition={{ delay: 0.5 }}
       className="max-w-2xl mx-auto px-4"
     >
       <div className="glass-card rounded-2xl p-6 neon-border">
@@ -45,10 +46,10 @@ const SearchPanel = ({ onSearch, isSearching }: SearchPanelProps) => {
         <button
           onClick={() => onSearch(city, category)}
           disabled={isSearching}
-          className="w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground font-bold py-3.5 rounded-xl hover:brightness-110 transition-all animate-pulse-neon disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground font-bold py-3.5 rounded-xl hover:brightness-110 transition-all disabled:opacity-50"
         >
           <Search className="w-5 h-5" />
-          {isSearching ? "جاري البحث..." : "ابحث عن الفرص"}
+          {isSearching ? "جاري البحث..." : "👉 ابدأ البحث الآن"}
         </button>
       </div>
     </motion.div>
