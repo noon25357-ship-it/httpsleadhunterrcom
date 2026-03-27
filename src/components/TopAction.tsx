@@ -32,67 +32,67 @@ const TopAction = ({ leads }: TopActionProps) => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-4 z-30 mb-6"
+        className="sticky top-2 sm:top-4 z-30 mb-4 sm:mb-6"
       >
         <button
           onClick={() => {
             trackEvent("open_top5");
             setShowModal(true);
           }}
-          className="w-full glass-card neon-border-strong rounded-2xl p-4 flex items-center justify-between gap-3 hover:brightness-110 transition-all group"
+          className="w-full glass-card neon-border-strong rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-3 hover:brightness-110 transition-all group active:scale-[0.99]"
         >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/15">
-              <Zap className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-primary/15 shrink-0">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
-            <div className="text-right">
-              <h3 className="font-bold text-foreground">👉 تواصل مع أفضل {topLeads.length} الآن ⚡</h3>
-              <p className="text-xs text-muted-foreground">أرقام + رسالة جاهزة — ابدأ خلال ثواني</p>
+            <div className="text-right min-w-0">
+              <h3 className="font-bold text-sm sm:text-base text-foreground truncate">👉 تواصل مع أفضل {topLeads.length} الآن ⚡</h3>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">أرقام + رسالة جاهزة — ابدأ خلال ثواني</p>
             </div>
           </div>
-          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm shrink-0 group-hover:shadow-[0_0_15px_hsl(145_80%_42%/0.4)] transition-shadow">
+          <div className="bg-primary text-primary-foreground px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm shrink-0 group-hover:shadow-[0_0_15px_hsl(145_80%_42%/0.4)] transition-shadow">
             ابدأ
           </div>
         </button>
       </motion.div>
 
-      {/* Modal */}
+      {/* Modal - bottom sheet on mobile */}
       <AnimatePresence>
         {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-background/80 backdrop-blur-sm"
             onClick={() => setShowModal(false)}
           >
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
+              exit={{ opacity: 0, y: 100 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md glass-card rounded-2xl neon-border overflow-hidden"
+              className="w-full sm:max-w-md glass-card rounded-t-2xl sm:rounded-2xl neon-border overflow-hidden max-h-[85vh]"
             >
-              <div className="flex items-center justify-between p-5 border-b border-border">
-                <h3 className="font-bold text-lg text-foreground">أفضل {topLeads.length} فرص الآن 🔥</h3>
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
+                <h3 className="font-bold text-base sm:text-lg text-foreground">أفضل {topLeads.length} فرص الآن 🔥</h3>
                 <button onClick={() => setShowModal(false)} className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
 
-              <div className="p-5 space-y-2 max-h-[50vh] overflow-y-auto">
+              <div className="p-4 sm:p-5 space-y-2 overflow-y-auto max-h-[50vh]">
                 {topLeads.map((lead) => (
-                  <div key={lead.id} className="flex items-center justify-between bg-secondary/50 rounded-lg px-4 py-3">
-                    <div>
-                      <span className="font-medium text-sm text-foreground block">{lead.name}</span>
-                      <span className="text-xs text-muted-foreground">{lead.phone}</span>
+                  <div key={lead.id} className="flex items-center justify-between bg-secondary/50 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-medium text-sm text-foreground block truncate">{lead.name}</span>
+                      <span className="text-xs text-muted-foreground" dir="ltr">{lead.phone}</span>
                     </div>
                     <a
                       href={`https://wa.me/966${lead.phone.slice(1)}?text=${encodeURIComponent(message)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => trackEvent("click_whatsapp_top5", { leadId: lead.id })}
-                      className="p-2.5 rounded-lg bg-primary text-primary-foreground hover:brightness-110 transition-all"
+                      className="p-2 sm:p-2.5 rounded-lg bg-primary text-primary-foreground hover:brightness-110 transition-all shrink-0 mr-2"
                     >
                       <MessageCircle className="w-4 h-4" />
                     </a>
@@ -100,10 +100,10 @@ const TopAction = ({ leads }: TopActionProps) => {
                 ))}
               </div>
 
-              <div className="p-5 pt-0">
+              <div className="p-4 sm:p-5 pt-0">
                 <button
                   onClick={copyMessage}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl border border-border text-xs sm:text-sm font-medium text-foreground hover:bg-secondary transition-colors active:scale-[0.98]"
                 >
                   {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                   📋 نسخ رسالة واحدة للجميع
