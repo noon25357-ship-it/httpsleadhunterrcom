@@ -22,11 +22,11 @@ const HeroSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-5 leading-tight text-foreground">
-            خل العملاء يجونك…
-            <span className="neon-text block mt-1 sm:mt-2">بدل ما تدور عليهم</span>
+            منصة اكتشاف الفرص
+            <span className="neon-text block mt-1 sm:mt-2">وتوليد العملاء بالذكاء الاصطناعي</span>
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed px-2">
-            LeadHunter يجيب لك بزنسات بدون مواقع إلكترونية، ويرتب لك أفضل الفرص عشان تبدأ البيع مباشرة
+            اكتشف الأنشطة التجارية التي تحتاج خدماتك قبل منافسيك
           </p>
         </motion.div>
 
