@@ -230,9 +230,7 @@ const LandingSections = () => {
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">جرّب LeadHunter وابدأ تجيب عملاء اليوم</p>
           <a
-            href="https://leadhunterr.com/register"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/register"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg hover:brightness-110 transition-all active:scale-[0.98]"
           >
             👉 ابدأ مجانًا
