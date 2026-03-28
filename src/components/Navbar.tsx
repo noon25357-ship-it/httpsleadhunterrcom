@@ -25,9 +25,7 @@ const Navbar = () => {
             تواصل معنا
           </Link>
           <a
-            href="https://leadhunterr.com/register"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/register"
             className="text-sm bg-primary text-primary-foreground px-4 py-1.5 rounded-lg font-bold hover:brightness-110 transition-all"
           >
             ابدأ مجانًا
