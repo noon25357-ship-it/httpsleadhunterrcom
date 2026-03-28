@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Send, User, Mail, Phone, MessageSquare, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
