@@ -210,7 +210,7 @@ const LandingSections = () => {
                   }`}
                 >
                   {plan.cta}
-                </Link>
+                </a>
               )}
             </motion.div>
           ))}
