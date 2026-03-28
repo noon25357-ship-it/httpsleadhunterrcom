@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Send, User, Mail, Phone, MessageSquare, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
@@ -12,15 +13,25 @@ const Contact = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email) return;
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+
+    const { error } = await supabase.from("contact_requests").insert({
+      name: form.name,
+      email: form.email,
+      phone: form.phone || null,
+      message: form.message || null,
+    });
+
+    setSending(false);
+    if (error) {
+      toast.error("حصل خطأ، حاول مرة ثانية");
+    } else {
       toast.success("تم إرسال طلبك بنجاح! سنتواصل معك قريبًا ⚡");
       setForm({ name: "", email: "", phone: "", message: "" });
-    }, 1200);
+    }
   };
 
   return (
