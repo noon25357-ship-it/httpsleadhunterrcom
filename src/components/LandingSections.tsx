@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const problems = [
   { emoji: "⏳", text: "تضيع وقت تدور عملاء يدوي" },
@@ -37,7 +38,8 @@ const plans = [
     price: "49 ر.س / شهر",
     features: ["100 عملية بحث شهريًا", "تصدير CSV", "Lead Scoring متقدم", "فلترة متقدمة"],
     cta: "تواصل معنا",
-    href: "https://leadhunterr.com/contact",
+    href: "/contact",
+    internal: true,
     highlight: true,
   },
   {
@@ -45,7 +47,8 @@ const plans = [
     price: "149 ر.س / شهر",
     features: ["بحث غير محدود", "Google Sheets", "أولوية في النتائج", "دعم مباشر"],
     cta: "تواصل معنا",
-    href: "https://leadhunterr.com/contact",
+    href: "/contact",
+    internal: true,
     highlight: false,
   },
 ];
@@ -184,18 +187,31 @@ const LandingSections = () => {
                   </li>
                 ))}
               </ul>
-              <a
-                href={plan.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`w-full text-center py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] ${
-                  plan.highlight
-                    ? "bg-primary text-primary-foreground hover:brightness-110"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              >
-                {plan.cta}
-              </a>
+              {(plan as any).internal ? (
+                <Link
+                  to={plan.href}
+                  className={`w-full text-center py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] block ${
+                    plan.highlight
+                      ? "bg-primary text-primary-foreground hover:brightness-110"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              ) : (
+                <a
+                  href={plan.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full text-center py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] block ${
+                    plan.highlight
+                      ? "bg-primary text-primary-foreground hover:brightness-110"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {plan.cta}
+                </a>
+              )}
             </motion.div>
           ))}
         </div>
