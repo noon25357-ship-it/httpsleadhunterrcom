@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -17,6 +18,12 @@ const Navbar = () => {
           <a href="#search" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
             الرئيسية
           </a>
+          <Link
+            to="/contact"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+          >
+            تواصل معنا
+          </Link>
           <a
             href="https://leadhunterr.com/register"
             target="_blank"
