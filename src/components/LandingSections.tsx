@@ -30,7 +30,8 @@ const plans = [
     price: "0 ر.س",
     features: ["3 عمليات بحث شهريًا", "بحث أساسي", "حفظ الليدز", "Lead Scoring"],
     cta: "ابدأ مجانًا",
-    href: "https://leadhunterr.com/register",
+    href: "/register",
+    internal: true,
     highlight: false,
   },
   {
