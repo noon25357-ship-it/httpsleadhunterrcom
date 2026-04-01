@@ -346,7 +346,21 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <ContactModal lead={selectedLead} onClose={() => setSelectedLead(null)} />
+      <ContactModal
+        lead={selectedLead}
+        onClose={() => setSelectedLead(null)}
+        onSave={handleSaveLead}
+        onMarkContacted={async (lead, channel) => {
+          const saved = getLeadStatus(lead.id);
+          if (saved) {
+            await markAsContacted(saved.id, channel);
+          } else {
+            await saveLead(lead);
+            const newSaved = getLeadStatus(lead.id);
+            if (newSaved) await markAsContacted(newSaved.id, channel);
+          }
+        }}
+      />
     </div>
   );
 };
