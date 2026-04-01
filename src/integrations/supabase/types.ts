@@ -70,21 +70,36 @@ export type Database = {
       }
       saved_leads: {
         Row: {
+          contact_channel: string | null
           created_at: string
           id: string
+          last_action: string | null
+          last_action_at: string | null
           lead_data: Json
+          status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
+          contact_channel?: string | null
           created_at?: string
           id?: string
+          last_action?: string | null
+          last_action_at?: string | null
           lead_data: Json
+          status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
+          contact_channel?: string | null
           created_at?: string
           id?: string
+          last_action?: string | null
+          last_action_at?: string | null
           lead_data?: Json
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
