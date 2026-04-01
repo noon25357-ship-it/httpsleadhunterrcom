@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Star, MapPin, ExternalLink, MessageCircle, Copy, Bookmark, BookmarkCheck } from "lucide-react";
+import { Star, MapPin, ExternalLink, MessageCircle, Copy, Bookmark, BookmarkCheck, Lightbulb } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
 import { getDefaultMessage } from "@/lib/leadData";
+import { getWhyReasons } from "@/lib/messageGenerator";
 import { LEAD_STATUSES, type SavedLead } from "@/lib/leadStatuses";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
@@ -11,15 +12,6 @@ const scoreBadge: Record<string, { text: string; shortText: string; classes: str
   warm: { text: "🟡 فرصة متوسطة", shortText: "🟡 متوسطة", classes: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30" },
   cold: { text: "🔵 فرصة ضعيفة", shortText: "🔵 ضعيفة", classes: "bg-blue-500/15 text-blue-400 border border-blue-500/30" },
 };
-
-function getWhyReasons(lead: Lead): string[] {
-  const reasons: string[] = [];
-  if (!lead.hasWebsite) reasons.push("بدون موقع إلكتروني");
-  if (lead.reviews > 50) reasons.push(`تقييمات عالية (${lead.reviews}+)`);
-  if (lead.rating >= 4) reasons.push(`تقييم ممتاز ⭐ ${lead.rating}`);
-  if (lead.isActive) reasons.push("نشاط واضح");
-  return reasons;
-}
 
 interface LeadCardProps {
   lead: Lead;
@@ -85,7 +77,6 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
             <span className="sm:hidden">{badge.shortText}</span>
             <span className="opacity-70">({lead.score})</span>
           </div>
-          {/* Show current status if saved */}
           {statusInfo && (
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusInfo.color}`}>
               {statusInfo.emoji} {statusInfo.label}
@@ -112,13 +103,23 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         </a>
       </div>
 
-      {/* Why this lead */}
+      {/* Why this lead - enhanced */}
       {reasons.length > 0 && (
-        <div className="bg-primary/[0.05] border border-primary/10 rounded-lg px-3 py-2">
-          <p className="text-[10px] sm:text-xs font-medium text-primary/80 mb-0.5">ليش هذي فرصة؟</p>
-          <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">
-            {reasons.join(" • ")}
-          </p>
+        <div className="bg-primary/[0.06] border border-primary/15 rounded-lg px-3 py-2.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Lightbulb className="w-3 h-3 text-primary" />
+            <p className="text-[10px] sm:text-xs font-bold text-primary">ليش هذه فرصة؟</p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {reasons.map((r) => (
+              <span
+                key={r.key}
+                className="inline-flex items-center text-[10px] sm:text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-md"
+              >
+                {r.text}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
