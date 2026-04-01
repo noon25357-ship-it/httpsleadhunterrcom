@@ -13,6 +13,7 @@ import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import { generateMockLeads, type Lead } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
+import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
 
 const Dashboard = () => {
