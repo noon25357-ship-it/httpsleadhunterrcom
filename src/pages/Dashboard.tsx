@@ -259,7 +259,7 @@ const Dashboard = () => {
               <div className="space-y-3">
                 {savedLeads.map((saved) => {
                   const lead = saved.lead_data as Lead;
-                  const statusInfo = (await import("@/lib/leadStatuses")).LEAD_STATUSES[saved.status] || { label: saved.status, emoji: "📌", color: "" };
+                  const statusInfo = LEAD_STATUSES[saved.status] || { label: saved.status, emoji: "📌", color: "" };
                   return (
                     <motion.div
                       key={saved.id}
