@@ -102,6 +102,9 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Pipeline CRM section */}
+      <PipelineSection />
+
       {/* Landing page sections */}
       <LandingSections />
 
