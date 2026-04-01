@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Search, Bookmark, Settings, LogOut, Crown,
-  Zap, ArrowRight, Trash2, X
+  Zap, ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import { generateMockLeads, type Lead } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
+import { useLeadManager } from "@/hooks/useLeadManager";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,30 +29,29 @@ const Dashboard = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [limitReached, setLimitReached] = useState(false);
 
-  // Saved leads
-  const [savedLeads, setSavedLeads] = useState<any[]>([]);
+  const {
+    savedLeads, fetchSavedLeads, saveLead, deleteLead,
+    getLeadStatus, markAsContacted,
+  } = useLeadManager(user?.id);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate("/login");
-        return;
-      }
+      if (!session) { navigate("/login"); return; }
       setUser(session.user);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/login");
-        return;
-      }
+      if (!session) { navigate("/login"); return; }
       setUser(session.user);
       fetchProfile(session.user.id);
-      fetchSavedLeads(session.user.id);
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    if (user) fetchSavedLeads();
+  }, [user, fetchSavedLeads]);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
@@ -59,19 +59,9 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const fetchSavedLeads = async (userId: string) => {
-    const { data } = await supabase
-      .from("saved_leads")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-    setSavedLeads(data || []);
-  };
-
   const handleSearch = useCallback(async (city: string, category: string) => {
     if (!user) return;
 
-    // Check limit via RPC
     const { data: newCount, error } = await supabase.rpc("increment_search_count", {
       _user_id: user.id,
     });
@@ -92,29 +82,30 @@ const Dashboard = () => {
       setLeads(results);
       setIsSearching(false);
       setHasSearched(true);
-      // Update local profile
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
     }, 1800);
   }, [user]);
 
-  const saveLead = async (lead: Lead) => {
-    if (!user) return;
-    const { error } = await supabase.from("saved_leads").insert({
-      user_id: user.id,
-      lead_data: lead as any,
-    });
-    if (error) {
-      toast.error("خطأ في حفظ الليد");
-    } else {
-      toast.success("تم حفظ الليد ✅");
-      fetchSavedLeads(user.id);
+  const handleSaveLead = async (lead: Lead) => {
+    await saveLead(lead);
+  };
+
+  const handleContactLead = (lead: Lead) => {
+    setSelectedLead(lead);
+  };
+
+  const handleWhatsAppClick = async (lead: Lead) => {
+    const saved = getLeadStatus(lead.id);
+    if (saved) {
+      await markAsContacted(saved.id, "whatsapp");
     }
   };
 
-  const deleteSavedLead = async (id: string) => {
-    await supabase.from("saved_leads").delete().eq("id", id);
-    if (user) fetchSavedLeads(user.id);
-    toast.success("تم الحذف");
+  const handleCopyClick = async (lead: Lead) => {
+    const saved = getLeadStatus(lead.id);
+    if (saved) {
+      await markAsContacted(saved.id, "copy");
+    }
   };
 
   const handleLogout = async () => {
@@ -150,6 +141,18 @@ const Dashboard = () => {
             <span className="font-black text-lg text-foreground">LeadHunter</span>
           </Link>
           <div className="flex items-center gap-3">
+            <Link
+              to="/my-leads"
+              className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 font-bold"
+            >
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">الليدز</span>
+              {savedLeads.length > 0 && (
+                <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {savedLeads.length}
+                </span>
+              )}
+            </Link>
             <span className="text-xs text-muted-foreground hidden sm:block">
               {user?.email}
             </span>
@@ -164,7 +167,6 @@ const Dashboard = () => {
       </nav>
 
       <div className="pt-20 pb-24 px-4 max-w-5xl mx-auto">
-        {/* Search counter */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-black text-foreground">مرحبًا، {profile?.full_name || "مستخدم"} 👋</h1>
           <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-1.5">
@@ -174,7 +176,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Tab content */}
         {activeTab === "search" && (
           <div>
             {limitReached ? (
@@ -213,16 +214,16 @@ const Dashboard = () => {
                       </motion.p>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {leads.map((lead, i) => (
-                          <div key={lead.id} className="relative">
-                            <LeadCard lead={lead} index={i} onContact={setSelectedLead} />
-                            <button
-                              onClick={() => saveLead(lead)}
-                              className="absolute top-3 left-3 z-10 p-1.5 bg-primary/20 hover:bg-primary/40 rounded-lg transition-colors"
-                              title="حفظ"
-                            >
-                              <Bookmark className="w-4 h-4 text-primary" />
-                            </button>
-                          </div>
+                          <LeadCard
+                            key={lead.id}
+                            lead={lead}
+                            index={i}
+                            onContact={handleContactLead}
+                            onSave={handleSaveLead}
+                            onWhatsApp={handleWhatsAppClick}
+                            onCopy={handleCopyClick}
+                            savedStatus={getLeadStatus(lead.id)}
+                          />
                         ))}
                       </div>
                     </>
@@ -235,7 +236,18 @@ const Dashboard = () => {
 
         {activeTab === "saved" && (
           <div>
-            <h2 className="text-lg font-black text-foreground mb-4">الليدز المحفوظة ({savedLeads.length})</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-foreground">الليدز المحفوظة ({savedLeads.length})</h2>
+              {savedLeads.length > 0 && (
+                <Link
+                  to="/my-leads"
+                  className="text-sm text-primary hover:underline font-bold flex items-center gap-1"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  إدارة الليدز
+                </Link>
+              )}
+            </div>
             {savedLeads.length === 0 ? (
               <div className="text-center py-16 bg-card border border-border rounded-2xl">
                 <Bookmark className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -246,6 +258,7 @@ const Dashboard = () => {
               <div className="space-y-3">
                 {savedLeads.map((saved) => {
                   const lead = saved.lead_data as Lead;
+                  const statusInfo = (await import("@/lib/leadStatuses")).LEAD_STATUSES[saved.status] || { label: saved.status, emoji: "📌", color: "" };
                   return (
                     <motion.div
                       key={saved.id}
@@ -254,11 +267,16 @@ const Dashboard = () => {
                       className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between"
                     >
                       <div>
-                        <h3 className="font-bold text-foreground">{lead.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-foreground">{lead.name}</h3>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusInfo.color}`}>
+                            {statusInfo.emoji} {statusInfo.label}
+                          </span>
+                        </div>
                         <p className="text-sm text-muted-foreground">{lead.category} — {lead.city}</p>
                       </div>
                       <button
-                        onClick={() => deleteSavedLead(saved.id)}
+                        onClick={() => deleteLead(saved.id)}
                         className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -310,15 +328,20 @@ const Dashboard = () => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
-                activeTab === tab.id
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <tab.icon className="w-5 h-5" />
               <span className="text-xs font-medium">{tab.label}</span>
             </button>
           ))}
+          <Link
+            to="/my-leads"
+            className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ClipboardList className="w-5 h-5" />
+            <span className="text-xs font-medium">الليدز</span>
+          </Link>
         </div>
       </div>
 
