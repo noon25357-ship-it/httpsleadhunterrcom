@@ -9,6 +9,7 @@ import TopAction from "@/components/TopAction";
 import EmailCapture from "@/components/EmailCapture";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import LandingSections from "@/components/LandingSections";
+import PipelineSection from "@/components/PipelineSection";
 import { generateMockLeads, type Lead } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
 
