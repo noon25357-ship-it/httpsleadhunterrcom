@@ -10,6 +10,7 @@ import EmailCapture from "@/components/EmailCapture";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import LandingSections from "@/components/LandingSections";
 import PipelineSection from "@/components/PipelineSection";
+import SmartLeadsDashboard from "@/components/smart-leads/SmartLeadsDashboard";
 import { generateMockLeads, type Lead } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
 
