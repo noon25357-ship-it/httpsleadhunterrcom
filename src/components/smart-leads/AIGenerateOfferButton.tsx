@@ -7,9 +7,10 @@ import QuickActions from "./QuickActions";
 
 interface AIGenerateOfferButtonProps {
   lead: SmartLead;
+  onGenerated?: () => void;
 }
 
-const AIGenerateOfferButton = ({ lead }: AIGenerateOfferButtonProps) => {
+const AIGenerateOfferButton = ({ lead, onGenerated }: AIGenerateOfferButtonProps) => {
   const [state, setState] = useState<"idle" | "loading" | "done">("idle");
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
@@ -20,6 +21,7 @@ const AIGenerateOfferButton = ({ lead }: AIGenerateOfferButtonProps) => {
     setTimeout(() => {
       setMessage(generateOfferMessage(lead));
       setState("done");
+      onGenerated?.();
     }, delay);
   };
 
