@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -21,7 +22,6 @@ const Login = () => {
       toast.error("بيانات الدخول غير صحيحة");
     } else {
       toast.success("تم تسجيل الدخول!");
-      // Check if admin
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: roles } = await supabase
@@ -33,6 +33,26 @@ const Login = () => {
       }
     }
     setLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast.error("حدث خطأ في تسجيل الدخول بقوقل");
+        return;
+      }
+      if (result.redirected) return;
+      toast.success("تم تسجيل الدخول!");
+      navigate("/dashboard");
+    } catch {
+      toast.error("حدث خطأ غير متوقع");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
