@@ -103,6 +103,9 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Smart Leads AI Section */}
+      <SmartLeadsDashboard />
+
       {/* Pipeline CRM section */}
       <PipelineSection />
 
