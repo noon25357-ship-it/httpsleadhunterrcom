@@ -24,7 +24,7 @@ const FiltersBar = ({ filters, onChange }: FiltersBarProps) => {
       <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
       <select value={filters.city} onChange={e => set('city', e.target.value)} className={selectClass}>
         <option value="">كل المدن</option>
-        {['الرياض', 'جدة', 'مكة', 'الدمام', 'المدينة'].map(c => <option key={c} value={c}>{c}</option>)}
+        {['الرياض', 'جدة', 'مكة', 'الدمام', 'المدينة المنورة'].map(c => <option key={c} value={c}>{c}</option>)}
       </select>
       <select value={filters.websiteStatus} onChange={e => set('websiteStatus', e.target.value)} className={selectClass}>
         <option value="">حالة الموقع</option>
