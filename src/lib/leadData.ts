@@ -71,5 +71,5 @@ export function getDefaultMessage(service: string, tone: string): string {
   return `السلام عليكم\nلاحظت أن عندكم نشاط جميل لكن ما عندكم ${svc}\nأقدر أساعدكم تسوون ${svc} بسيط يجيب لكم عملاء أكثر\nإذا مهتمين نرتب لكم عرض سريع 🚀`;
 }
 
-export const cities = ['الرياض', 'جدة', 'الدمام'];
+export const cities = ['الرياض', 'جدة', 'الدمام', 'المدينة المنورة'];
 export const categories = ['مطاعم', 'كافيهات', 'صالونات', 'ورش', 'عيادات'];
