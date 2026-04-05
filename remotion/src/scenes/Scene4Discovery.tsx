@@ -1,40 +1,75 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 
+const benefits = [
+  { icon: "⚡", title: "اكتشاف فوري", desc: "امسح السوق في ثوانٍ مو أيام", color: "#22c55e" },
+  { icon: "🤖", title: "رسائل بالذكاء الاصطناعي", desc: "رسالة مخصصة لكل عميل تلقائياً", color: "#3b82f6" },
+  { icon: "📊", title: "متابعة كاملة", desc: "تتبع كل عميل من الاكتشاف للإغلاق", color: "#a855f7" },
+];
+
 export const Scene4Discovery = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const count = Math.min(Math.floor(interpolate(frame, [0, 50], [47, 156], { extrapolateRight: "clamp" })), 156);
 
-  const leadNames = [
-    "مقهى السلام", "معمل حلويات الفرح", "مغسلة النظافة", "ورشة الإتقان",
-    "صالون VIP", "مطعم الديرة", "بقالة الحي", "خياطة الأناقة",
-    "مكتب المحاسب", "كافيه بريك", "مطبعة الإبداع", "محل الأزهار",
-  ];
-  const scrollY = interpolate(frame, [0, 80], [0, -400]);
+  const titleOp = spring({ frame, fps, config: { damping: 20 } });
+  const titleY = interpolate(titleOp, [0, 1], [30, 0]);
 
   return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <div style={{ position: "absolute", left: 120, top: 0, bottom: 0, width: 500, overflow: "hidden" }}>
-        <div style={{ transform: `translateY(${scrollY}px)`, paddingTop: 200 }}>
-          {leadNames.map((name, i) => {
-            const s = spring({ frame: frame - i * 5, fps, config: { damping: 20 } });
-            return (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 20px", marginBottom: 8, backgroundColor: "rgba(15,25,20,0.8)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 12, opacity: s, transform: `translateX(${interpolate(s, [0, 1], [-30, 0])}px)` }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#22c55e", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }} />
-                <span style={{ fontFamily: "Space Grotesk, sans-serif", fontSize: 18, color: "white" }}>{name}</span>
-                <span style={{ marginLeft: "auto", fontFamily: "Space Grotesk, sans-serif", fontSize: 13, color: "#ef4444", opacity: 0.8 }}>بدون موقع</span>
-              </div>
-            );
-          })}
-        </div>
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 60% 40%, #0a1a0f 0%, #050a07 60%, #020503 100%)" }}>
+      {/* Title */}
+      <div style={{
+        position: "absolute", top: 100, left: "50%", transform: `translateX(-50%) translateY(${titleY}px)`,
+        fontFamily: "Space Grotesk, sans-serif", fontSize: 52, fontWeight: 700,
+        color: "white", opacity: titleOp, textAlign: "center",
+        textShadow: "0 0 50px rgba(0,0,0,0.5)",
+      }}>
+        ليش <span style={{ color: "#22c55e" }}>LeadHunter</span>؟
       </div>
 
-      <div style={{ position: "absolute", right: 120, top: "50%", transform: "translateY(-50%)", textAlign: "right" }}>
-        <div style={{ fontFamily: "Space Grotesk, sans-serif", fontSize: 120, fontWeight: 700, color: "#22c55e", lineHeight: 1 }}>{count}</div>
-        <div style={{ fontFamily: "Space Grotesk, sans-serif", fontSize: 28, color: "rgba(255,255,255,0.6)", marginTop: 10 }}>فرصة تم اكتشافها</div>
-        <div style={{ marginTop: 30, fontFamily: "Space Grotesk, sans-serif", fontSize: 20, color: "rgba(255,255,255,0.4)", opacity: spring({ frame: frame - 30, fps, config: { damping: 20 } }) }}>
-          في أقل من ١٠ ثواني
-        </div>
+      {/* Benefits */}
+      <div style={{
+        position: "absolute", top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        display: "flex", gap: 50,
+        marginTop: 40,
+      }}>
+        {benefits.map((b, i) => {
+          const s = spring({ frame: frame - 20 - i * 12, fps, config: { damping: 14, stiffness: 140 } });
+          const y = interpolate(s, [0, 1], [80, 0]);
+          const glow = interpolate(Math.sin((frame - i * 10) * 0.08), [-1, 1], [0.3, 0.6]);
+
+          return (
+            <div key={i} style={{
+              width: 380, textAlign: "center",
+              opacity: s, transform: `translateY(${y}px)`,
+            }}>
+              {/* Icon circle */}
+              <div style={{
+                width: 100, height: 100, borderRadius: "50%",
+                background: `radial-gradient(circle, ${b.color}22 0%, transparent 70%)`,
+                border: `2px solid ${b.color}33`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 48, margin: "0 auto 24px",
+                boxShadow: `0 0 ${40 * glow}px ${b.color}44`,
+              }}>
+                {b.icon}
+              </div>
+
+              <div style={{
+                fontFamily: "Space Grotesk, sans-serif", fontSize: 28, fontWeight: 700,
+                color: b.color, marginBottom: 12,
+              }}>
+                {b.title}
+              </div>
+
+              <div style={{
+                fontFamily: "Space Grotesk, sans-serif", fontSize: 20,
+                color: "rgba(255,255,255,0.55)", lineHeight: 1.5,
+              }}>
+                {b.desc}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </AbsoluteFill>
   );
