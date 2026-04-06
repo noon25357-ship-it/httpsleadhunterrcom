@@ -39,7 +39,7 @@ function calcScore(lead: Omit<SmartLead, 'opportunityScore' | 'opportunityReason
 
   if (['خدمات', 'عيادات', 'مطاعم'].includes(lead.category)) { score += 15; reasons.push('نشاطه يعتمد على الظهور المحلي'); }
 
-  if (['الرياض', 'جدة', 'مكة', 'الدمام', 'المدينة المنورة'].includes(lead.city)) { score += 10; reasons.push('في مدينة رئيسية'); } { score += 10; reasons.push('في مدينة رئيسية'); }
+  if (['الرياض', 'جدة', 'مكة', 'الدمام', 'المدينة المنورة'].includes(lead.city)) { score += 10; reasons.push('في مدينة رئيسية'); }
 
   if (lead.phone) { score += 10; reasons.push('رقم تواصل متوفر'); }
 
