@@ -207,52 +207,40 @@ const MyLeads = () => {
                     {/* Actions bar */}
                     <div className="px-4 pb-3 flex items-center gap-2 flex-wrap">
                       {/* Status dropdown */}
-                      <div className="relative">
-                        <button
-                          onClick={() => setOpenStatusId(isStatusOpen ? null : saved.id)}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
-                        >
-                          تغيير الحالة
-                          <ChevronDown className={`w-3 h-3 transition-transform ${isStatusOpen ? "rotate-180" : ""}`} />
-                        </button>
-                        <AnimatePresence>
-                          {isStatusOpen && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                              className="fixed z-[100] bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[220px]"
-                              style={{ top: 'auto', right: 'auto' }}
-                            >
-                              <p className="px-3 pb-1.5 text-[10px] text-muted-foreground font-medium border-b border-border mb-1">اختر الحالة الجديدة</p>
-                              {statusOrder.map((s) => {
-                                const info = LEAD_STATUSES[s];
-                                const isActive = saved.status === s;
-                                return (
-                                  <button
-                                    key={s}
-                                    onClick={() => {
-                                      updateLeadStatus(saved.id, s);
-                                      setOpenStatusId(null);
-                                    }}
-                                    className={`w-full text-right px-3 py-2.5 text-sm hover:bg-secondary/80 transition-colors flex items-center gap-2.5 ${
-                                      isActive ? "bg-primary/10" : ""
-                                    }`}
-                                  >
-                                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs border ${info.color}`}>
-                                      {info.emoji}
-                                    </span>
-                                    <span className={isActive ? "text-primary font-bold" : "text-foreground font-medium"}>
-                                      {info.label}
-                                    </span>
-                                    {isActive && <span className="mr-auto text-primary text-[10px]">✓ الحالية</span>}
-                                  </button>
-                                );
-                              })}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium hover:bg-secondary/80 transition-colors">
+                            تغيير الحالة
+                            <ChevronDown className="w-3 h-3" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent align="end" side="top" sideOffset={8} className="w-[220px] p-0 rounded-xl border-border bg-card shadow-2xl">
+                          <p className="px-3 pt-2 pb-1.5 text-[10px] text-muted-foreground font-medium border-b border-border">اختر الحالة الجديدة</p>
+                          <div className="py-1">
+                            {statusOrder.map((s) => {
+                              const info = LEAD_STATUSES[s];
+                              const isActive = saved.status === s;
+                              return (
+                                <button
+                                  key={s}
+                                  onClick={() => updateLeadStatus(saved.id, s)}
+                                  className={`w-full text-right px-3 py-2.5 text-sm hover:bg-secondary/80 transition-colors flex items-center gap-2.5 ${
+                                    isActive ? "bg-primary/10" : ""
+                                  }`}
+                                >
+                                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs border ${info.color}`}>
+                                    {info.emoji}
+                                  </span>
+                                  <span className={isActive ? "text-primary font-bold" : "text-foreground font-medium"}>
+                                    {info.label}
+                                  </span>
+                                  {isActive && <span className="mr-auto text-primary text-[10px]">✓ الحالية</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       {/* Quick contact actions */}
                       <a
