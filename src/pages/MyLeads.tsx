@@ -163,7 +163,7 @@ const MyLeads = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="glass-card rounded-2xl overflow-hidden"
+                    className="glass-card rounded-2xl"
                   >
                     {/* Lead info row */}
                     <div className="p-4 flex items-start gap-3">
