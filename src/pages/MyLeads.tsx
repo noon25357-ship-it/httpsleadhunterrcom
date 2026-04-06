@@ -217,25 +217,36 @@ const MyLeads = () => {
                         <AnimatePresence>
                           {isStatusOpen && (
                             <motion.div
-                              initial={{ opacity: 0, y: -5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              className="absolute top-full mt-1 right-0 z-20 bg-card border border-border rounded-xl shadow-lg py-1 min-w-[160px]"
+                              initial={{ opacity: 0, y: -5, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: -5, scale: 0.95 }}
+                              className="absolute top-full mt-1.5 right-0 z-20 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[200px]"
                             >
-                              {statusOrder.map((s) => (
-                                <button
-                                  key={s}
-                                  onClick={() => {
-                                    updateLeadStatus(saved.id, s);
-                                    setOpenStatusId(null);
-                                  }}
-                                  className={`w-full text-right px-3 py-2 text-xs hover:bg-secondary transition-colors flex items-center gap-2 ${
-                                    saved.status === s ? "text-primary font-bold" : "text-foreground"
-                                  }`}
-                                >
-                                  {LEAD_STATUSES[s].emoji} {LEAD_STATUSES[s].label}
-                                </button>
-                              ))}
+                              <p className="px-3 pb-1.5 text-[10px] text-muted-foreground font-medium border-b border-border mb-1">اختر الحالة الجديدة</p>
+                              {statusOrder.map((s) => {
+                                const info = LEAD_STATUSES[s];
+                                const isActive = saved.status === s;
+                                return (
+                                  <button
+                                    key={s}
+                                    onClick={() => {
+                                      updateLeadStatus(saved.id, s);
+                                      setOpenStatusId(null);
+                                    }}
+                                    className={`w-full text-right px-3 py-2.5 text-sm hover:bg-secondary/80 transition-colors flex items-center gap-2.5 ${
+                                      isActive ? "bg-primary/10" : ""
+                                    }`}
+                                  >
+                                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs border ${info.color}`}>
+                                      {info.emoji}
+                                    </span>
+                                    <span className={isActive ? "text-primary font-bold" : "text-foreground font-medium"}>
+                                      {info.label}
+                                    </span>
+                                    {isActive && <span className="mr-auto text-primary text-[10px]">✓ الحالية</span>}
+                                  </button>
+                                );
+                              })}
                             </motion.div>
                           )}
                         </AnimatePresence>
