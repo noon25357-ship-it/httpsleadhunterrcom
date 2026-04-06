@@ -36,11 +36,25 @@ const CountUp = ({ target }: { target: number }) => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchCount, setSearchCount] = useState(0);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate("/dashboard");
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) navigate("/dashboard");
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSearch = useCallback((city: string, category: string) => {
     setIsSearching(true);
