@@ -18,20 +18,34 @@ const Contact = () => {
     if (!form.name || !form.email) return;
     setSending(true);
 
+    const id = crypto.randomUUID();
     const { error } = await supabase.from("contact_requests").insert({
+      id,
       name: form.name,
       email: form.email,
       phone: form.phone || null,
       message: form.message || null,
     });
 
-    setSending(false);
     if (error) {
+      setSending(false);
       toast.error("حصل خطأ، حاول مرة ثانية");
-    } else {
-      toast.success("تم إرسال طلبك بنجاح! سنتواصل معك قريبًا ⚡");
-      setForm({ name: "", email: "", phone: "", message: "" });
+      return;
     }
+
+    // Send confirmation email
+    await supabase.functions.invoke("send-transactional-email", {
+      body: {
+        templateName: "contact-confirmation",
+        recipientEmail: form.email,
+        idempotencyKey: `contact-confirm-${id}`,
+        templateData: { name: form.name },
+      },
+    });
+
+    setSending(false);
+    toast.success("تم إرسال طلبك بنجاح! سنتواصل معك قريبًا ⚡");
+    setForm({ name: "", email: "", phone: "", message: "" });
   };
 
   return (
