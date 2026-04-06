@@ -5,6 +5,7 @@ import {
   ArrowRight, Filter, Search, Trash2, LogOut,
   MessageCircle, Phone, Copy, Clock, ChevronDown,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useLeadManager } from "@/hooks/useLeadManager";
 import {
