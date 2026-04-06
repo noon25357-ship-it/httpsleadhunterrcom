@@ -155,7 +155,7 @@ const MyLeads = () => {
               {filtered.map((saved) => {
                 const lead = saved.lead_data as Lead;
                 const statusInfo = LEAD_STATUSES[saved.status] || LEAD_STATUSES.new;
-                const isStatusOpen = openStatusId === saved.id;
+                
 
                 return (
                   <motion.div
