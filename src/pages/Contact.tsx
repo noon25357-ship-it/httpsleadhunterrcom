@@ -33,13 +33,28 @@ const Contact = () => {
       return;
     }
 
-    // Send confirmation email
+    // Send confirmation email to user
     await supabase.functions.invoke("send-transactional-email", {
       body: {
         templateName: "contact-confirmation",
         recipientEmail: form.email,
         idempotencyKey: `contact-confirm-${id}`,
         templateData: { name: form.name },
+      },
+    });
+
+    // Send notification to admin
+    await supabase.functions.invoke("send-transactional-email", {
+      body: {
+        templateName: "new-contact-notification",
+        recipientEmail: "support@leadhunterr.com",
+        idempotencyKey: `contact-notify-${id}`,
+        templateData: {
+          name: form.name,
+          email: form.email,
+          phone: form.phone || undefined,
+          message: form.message || undefined,
+        },
       },
     });
 
