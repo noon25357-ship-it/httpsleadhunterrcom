@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import SearchPanel from "@/components/SearchPanel";
