@@ -220,7 +220,7 @@ const MyLeads = () => {
                               initial={{ opacity: 0, y: -5, scale: 0.95 }}
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                              className="absolute bottom-full mb-1.5 right-0 z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[200px]"
+                              className="absolute top-full mt-1.5 right-0 z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[200px] max-h-[280px] overflow-y-auto"
                             >
                               <p className="px-3 pb-1.5 text-[10px] text-muted-foreground font-medium border-b border-border mb-1">اختر الحالة الجديدة</p>
                               {statusOrder.map((s) => {
