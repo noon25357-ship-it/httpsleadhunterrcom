@@ -25,7 +25,7 @@ const MyLeads = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<LeadStatus | "all">("all");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [openStatusId, setOpenStatusId] = useState<string | null>(null);
+  
 
   const {
     savedLeads, fetchSavedLeads, updateLeadStatus,
