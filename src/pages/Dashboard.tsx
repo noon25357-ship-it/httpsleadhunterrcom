@@ -78,13 +78,21 @@ const Dashboard = () => {
     setHasSearched(false);
     trackEvent("search", { city, category });
 
-    setTimeout(() => {
-      const results = generateMockLeads(city, category);
+    try {
+      const results = await searchRealPlaces(city, category);
       setLeads(results);
-      setIsSearching(false);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
-    }, 1800);
+    } catch (err) {
+      console.error("Real search failed, falling back to mock:", err);
+      toast.error("تعذر البحث الحقيقي، جاري عرض نتائج تجريبية");
+      const results = generateMockLeads(city, category);
+      setLeads(results);
+      setHasSearched(true);
+      setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
+    } finally {
+      setIsSearching(false);
+    }
   }, [user]);
 
   const handleSaveLead = async (lead: Lead) => {
