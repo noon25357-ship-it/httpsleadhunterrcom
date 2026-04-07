@@ -48,6 +48,11 @@ const cityCoords: Record<string, { lat: number; lng: number; nameEn: string }> =
   الخبر: { lat: 26.2172, lng: 50.1971, nameEn: "Khobar" },
   تبوك: { lat: 28.3835, lng: 36.5662, nameEn: "Tabuk" },
   أبها: { lat: 18.2164, lng: 42.5053, nameEn: "Abha" },
+  القصيم: { lat: 26.3260, lng: 43.9750, nameEn: "Qassim" },
+  حائل: { lat: 27.5114, lng: 41.7208, nameEn: "Hail" },
+  الطائف: { lat: 21.2703, lng: 40.4158, nameEn: "Taif" },
+  "خميس مشيط": { lat: 18.3066, lng: 42.7283, nameEn: "Khamis Mushait" },
+  نجران: { lat: 17.4933, lng: 44.1322, nameEn: "Najran" },
 };
 
 function calculateScore(lead: {
