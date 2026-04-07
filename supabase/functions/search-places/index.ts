@@ -36,6 +36,7 @@ const categorySearchTerms: Record<string, string> = {
   فنادق: "hotels",
   مدارس: "schools",
   مكتبات: "bookstores",
+  عقارات: "real estate agencies",
 };
 
 // City coordinates for SerpAPI
