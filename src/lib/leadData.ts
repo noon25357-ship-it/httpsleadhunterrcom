@@ -94,4 +94,4 @@ export function getDefaultMessage(service: string, tone: string): string {
 }
 
 export const cities = ['الرياض', 'جدة', 'الدمام', 'المدينة المنورة', 'مكة', 'الخبر', 'تبوك', 'أبها', 'القصيم', 'حائل', 'الطائف', 'خميس مشيط', 'نجران'];
-export const categories = ['مطاعم', 'كافيهات', 'صالونات', 'ورش', 'عيادات'];
+export const categories = ['مطاعم', 'كافيهات', 'صالونات', 'ورش', 'عيادات', 'عقارات'];
