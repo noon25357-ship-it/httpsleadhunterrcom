@@ -57,6 +57,28 @@ export function generateMockLeads(city: string, category: string): Lead[] {
   }).sort((a, b) => b.score - a.score);
 }
 
+export async function searchRealPlaces(city: string, category: string): Promise<Lead[]> {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  const resp = await fetch(`${supabaseUrl}/functions/v1/search-places`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${supabaseKey}`,
+    },
+    body: JSON.stringify({ city, category }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || 'Search failed');
+  }
+
+  const data = await resp.json();
+  return data.leads as Lead[];
+}
+
 export function getDefaultMessage(service: string, tone: string): string {
   const services: Record<string, string> = {
     website: 'موقع إلكتروني',
@@ -71,5 +93,5 @@ export function getDefaultMessage(service: string, tone: string): string {
   return `السلام عليكم\nلاحظت أن عندكم نشاط جميل لكن ما عندكم ${svc}\nأقدر أساعدكم تسوون ${svc} بسيط يجيب لكم عملاء أكثر\nإذا مهتمين نرتب لكم عرض سريع 🚀`;
 }
 
-export const cities = ['الرياض', 'جدة', 'الدمام', 'المدينة المنورة'];
+export const cities = ['الرياض', 'جدة', 'الدمام', 'المدينة المنورة', 'مكة', 'الخبر', 'تبوك', 'أبها'];
 export const categories = ['مطاعم', 'كافيهات', 'صالونات', 'ورش', 'عيادات'];
