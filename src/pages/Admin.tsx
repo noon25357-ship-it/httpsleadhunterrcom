@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, Mail, Phone, Clock, LogIn, LogOut, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Users, Mail, Phone, Clock, LogIn, LogOut, Eye, EyeOff, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import SubscriptionManager from "@/components/admin/SubscriptionManager";
 
 interface ContactRequest {
   id: string;
