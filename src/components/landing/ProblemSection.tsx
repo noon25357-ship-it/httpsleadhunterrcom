@@ -1,27 +1,27 @@
 import { motion } from "framer-motion";
-import { Clock, HelpCircle, UserX, TrendingDown } from "lucide-react";
+import { Banknote, UserX, Clock, TrendingDown } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
 
 const problems = [
   {
-    icon: Clock,
-    title: "وقت ضائع",
-    text: "تقضي ساعات تبحث عن عملاء يدويًا بدون نتيجة واضحة",
-  },
-  {
-    icon: HelpCircle,
-    title: "بدون بيانات",
-    text: "ما تعرف مين فعلاً يحتاج خدمتك ومين مضيعة وقت",
+    icon: Banknote,
+    title: "تصرف على إعلانات — والنتيجة؟ مواعيد فاضية",
+    text: "تدفع لقوقل وإنستقرام وما تعرف هل اللي شاف الإعلان فعلاً يبحث عن طبيب أسنان أو بس يتصفح",
   },
   {
     icon: UserX,
-    title: "تواصل عشوائي",
-    text: "تتواصل مع ناس ما عندها نية تشتري — وتحس بالإحباط",
+    title: "مريض يبحث عن عيادة جلدية — ويحجز عند المنافس",
+    text: "ما عندك طريقة تعرف مين اللي يبحث عن تخصصك في مدينتك الحين — فالمنافس يوصله أول",
+  },
+  {
+    icon: Clock,
+    title: "تضيع وقتك تتواصل مع ناس مو مهتمة",
+    text: "ترسل عروض تبييض أو فيلر للكل — بدل ما تركز على اللي فعلاً يدور هالخدمة الحين",
   },
   {
     icon: TrendingDown,
-    title: "فرص ضائعة",
-    text: "تضيع فرص حقيقية لأنك ما تبدأ بالأهم أولًا",
+    title: "الكرسي فاضي — والإيجار يمشي",
+    text: "كل يوم بدون مرضى جدد يعني خسارة. والانتظار مو استراتيجية",
   },
 ];
 
@@ -35,8 +35,8 @@ const ProblemSection = () => {
         className="text-center mb-12"
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground leading-tight">
-          المشكلة مو في السوق…{" "}
-          <span className="text-primary">المشكلة في الوصول له</span>
+          كل يوم فيه مرضى يبحثون عن عيادة —{" "}
+          <span className="text-primary">وما يلاقونك</span>
         </h2>
       </motion.div>
 

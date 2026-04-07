@@ -1,23 +1,23 @@
-import { Search, BarChart3, LayoutDashboard } from "lucide-react";
+import { Users, BarChart3, MessageCircle } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
 import FeatureCard from "./FeatureCard";
 import { motion } from "framer-motion";
 
 const features = [
   {
-    icon: Search,
-    title: "بحث ذكي عن ليدز",
-    description: "اختر المدينة والفئة — النظام يجيب لك أنشطة تجارية جاهزة للتواصل مع تقييم لكل فرصة",
+    icon: Users,
+    title: "قائمة مرضى محتملين جاهزة",
+    description: "كل بحث يعطيك أشخاص يبحثون عن عيادة أسنان أو جلدية أو تجميل في منطقتك — مع أرقامهم",
   },
   {
     icon: BarChart3,
-    title: "تقييم تلقائي للفرص",
-    description: "نرتب لك الفرص بناءً على التقييمات والمراجعات ووجود بيانات تواصل — تبدأ بالأفضل",
+    title: "تعرف مين يحجز ومين يتصفح",
+    description: "كل شخص عليه تقييم جديّة — تركز وقتك على اللي فعلاً يبحث عن موعد مو بس يتصفح",
   },
   {
-    icon: LayoutDashboard,
-    title: "لوحة تحكم بسيطة",
-    description: "تابع فرصك، حدد حالة التواصل، وصدّر البيانات — كل شي واضح في مكان واحد",
+    icon: MessageCircle,
+    title: "رسالة واتساب جاهزة — ترسلها بضغطة",
+    description: "رسالة مخصصة لكل مريض محتمل — ما تحتاج تكتب من الصفر. اضغط وأرسل",
   },
 ];
 
@@ -30,9 +30,9 @@ const FeaturesSection = () => {
         viewport={{ once: true }}
         className="text-center mb-12"
       >
-        <p className="text-sm font-medium text-primary mb-3">المميزات</p>
+        <p className="text-sm font-medium text-primary mb-3">النتائج</p>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground">
-          كل اللي تحتاجه في مكان واحد
+          مرضى جدد كل أسبوع — بدون ما تصرف على إعلانات
         </h2>
       </motion.div>
 

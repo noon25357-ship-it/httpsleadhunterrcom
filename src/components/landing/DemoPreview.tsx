@@ -11,9 +11,9 @@ const DemoPreview = () => {
         viewport={{ once: true }}
         className="text-center mb-10"
       >
-        <p className="text-sm font-medium text-primary mb-3">شاهد بنفسك</p>
+        <p className="text-sm font-medium text-primary mb-3">شوف بنفسك</p>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground">
-          كيف يشتغل LeadHunter؟
+          من البحث إلى رسالة الواتساب — خلال دقيقة
         </h2>
       </motion.div>
 

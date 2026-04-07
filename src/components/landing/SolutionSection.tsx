@@ -3,9 +3,9 @@ import { Check } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
 
 const points = [
-  "يكتشف الأنشطة التجارية اللي تحتاج خدماتك تلقائيًا",
-  "يرتّب الفرص حسب الأولوية — تبدأ بالأفضل دائمًا",
-  "يعطيك بيانات جاهزة للتواصل المباشر",
+  "نكتشف أشخاص يبحثون عن طبيب أسنان أو جلدية أو تجميل في مدينتك",
+  "نرتّبهم حسب جديّتهم — تبدأ باللي أقرب للحجز",
+  "تتواصل معهم مباشرة برسالة واتساب أو اتصال",
 ];
 
 const SolutionSection = () => {
@@ -19,12 +19,12 @@ const SolutionSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <p className="text-sm font-medium text-primary mb-3">الحل</p>
+          <p className="text-sm font-medium text-primary mb-3">كيف يشتغل</p>
           <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-4 leading-tight">
-            LeadHunter يختصر عليك الطريق
+            من الكرسي الفاضي إلى جدول حجوزات ممتلئ
           </h2>
           <p className="text-muted-foreground mb-6 leading-relaxed">
-            بدل البحث العشوائي، النظام يجيب لك أنشطة تجارية جاهزة تحتاج خدماتك الآن — مرتبة ومصنّفة.
+            بدل ما تنتظر المريض يجيك من الإعلان، LeadHunter يوصّلك لناس تبحث عن عيادتك الحين.
           </p>
           <ul className="space-y-3">
             {points.map((point, i) => (
@@ -54,7 +54,7 @@ const SolutionSection = () => {
           className="bg-card border border-border rounded-2xl p-8 sm:p-10"
         >
           <div className="space-y-4">
-            {["بحث ذكي", "تصنيف تلقائي", "تواصل فوري"].map((step, i) => (
+            {["اكتشاف المرضى", "ترتيب بالجديّة", "تواصل مباشر"].map((step, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                   {i + 1}

@@ -15,7 +15,7 @@ const HeroSection = () => {
           transition={{ duration: 0.4 }}
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/[0.06] text-primary text-xs sm:text-sm font-medium mb-6"
         >
-          منتج سعودي 100%
+          لعيادات الأسنان، الجلدية، والتجميل
         </motion.div>
 
         <motion.h1
@@ -24,8 +24,8 @@ const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-5 leading-tight text-foreground"
         >
-          اكتشف عملاءك القادمين
-          <span className="block mt-2 text-primary">قبل منافسيك</span>
+          مرضى يبحثون عن عيادتك الحين
+          <span className="block mt-2 text-primary">وصّلهم قبل لا يحجزون عند غيرك</span>
         </motion.h1>
 
         <motion.p
@@ -34,7 +34,7 @@ const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8"
         >
-          منصة ذكاء اصطناعي تكتشف الأنشطة التجارية التي تحتاج خدماتك — وترتّبها لك حسب الأولوية
+          نكتشف لك الأشخاص اللي يبحثون عن طبيب أسنان أو جلدية أو تجميل في مدينتك — ونعطيك أرقامهم جاهزة للتواصل
         </motion.p>
 
         <motion.div
@@ -42,7 +42,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <CTAButton href="/register">ابدأ مجانًا</CTAButton>
+          <CTAButton href="/register">جرّب مجانًا — بدون بطاقة</CTAButton>
         </motion.div>
       </div>
     </section>
