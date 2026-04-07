@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, Mail, Phone, Clock, LogIn, LogOut, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Users, Mail, Phone, Clock, LogIn, LogOut, Eye, EyeOff, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import SubscriptionManager from "@/components/admin/SubscriptionManager";
 
 interface ContactRequest {
   id: string;
@@ -23,6 +24,7 @@ const Admin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [activeTab, setActiveTab] = useState<"requests" | "subscriptions">("requests");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -193,86 +195,120 @@ const Admin = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto"
           >
-            <h1 className="text-2xl font-black text-foreground mb-6">لوحة التحكم</h1>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-              <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                <Users className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-black text-foreground">{requests.length}</p>
-                <p className="text-xs text-muted-foreground">إجمالي الطلبات</p>
-              </div>
-              <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-black text-foreground">
-                  {requests.filter(r => {
-                    const d = new Date(r.created_at);
-                    const now = new Date();
-                    return now.getTime() - d.getTime() < 7 * 24 * 60 * 60 * 1000;
-                  }).length}
-                </p>
-                <p className="text-xs text-muted-foreground">آخر 7 أيام</p>
-              </div>
-              <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                <Mail className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-black text-foreground">
-                  {requests.filter(r => r.email).length}
-                </p>
-                <p className="text-xs text-muted-foreground">بريد إلكتروني</p>
-              </div>
-              <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                <Phone className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-black text-foreground">
-                  {requests.filter(r => r.phone).length}
-                </p>
-                <p className="text-xs text-muted-foreground">رقم جوال</p>
-              </div>
+            <div className="flex items-center gap-2 mb-6">
+              <h1 className="text-2xl font-black text-foreground">لوحة التحكم</h1>
             </div>
 
-            {/* Requests Table */}
-            {loading ? (
-              <div className="text-center py-12 text-muted-foreground animate-pulse">جاري تحميل الطلبات...</div>
-            ) : requests.length === 0 ? (
-              <div className="text-center py-12 bg-card border border-border rounded-2xl">
-                <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-foreground font-bold">لا توجد طلبات بعد</p>
-                <p className="text-sm text-muted-foreground mt-1">الطلبات ستظهر هنا عند استقبالها</p>
-              </div>
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6 bg-secondary rounded-xl p-1">
+              <button
+                onClick={() => setActiveTab("requests")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                  activeTab === "requests"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                طلبات التواصل
+              </button>
+              <button
+                onClick={() => setActiveTab("subscriptions")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                  activeTab === "subscriptions"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Crown className="w-4 h-4" />
+                إدارة الاشتراكات
+              </button>
+            </div>
+
+            {activeTab === "requests" ? (
+              <>
+                {/* Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                  <div className="bg-card border border-border rounded-2xl p-4 text-center">
+                    <Users className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-black text-foreground">{requests.length}</p>
+                    <p className="text-xs text-muted-foreground">إجمالي الطلبات</p>
+                  </div>
+                  <div className="bg-card border border-border rounded-2xl p-4 text-center">
+                    <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-black text-foreground">
+                      {requests.filter(r => {
+                        const d = new Date(r.created_at);
+                        const now = new Date();
+                        return now.getTime() - d.getTime() < 7 * 24 * 60 * 60 * 1000;
+                      }).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">آخر 7 أيام</p>
+                  </div>
+                  <div className="bg-card border border-border rounded-2xl p-4 text-center">
+                    <Mail className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-black text-foreground">
+                      {requests.filter(r => r.email).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">بريد إلكتروني</p>
+                  </div>
+                  <div className="bg-card border border-border rounded-2xl p-4 text-center">
+                    <Phone className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-black text-foreground">
+                      {requests.filter(r => r.phone).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">رقم جوال</p>
+                  </div>
+                </div>
+
+                {/* Requests Table */}
+                {loading ? (
+                  <div className="text-center py-12 text-muted-foreground animate-pulse">جاري تحميل الطلبات...</div>
+                ) : requests.length === 0 ? (
+                  <div className="text-center py-12 bg-card border border-border rounded-2xl">
+                    <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-foreground font-bold">لا توجد طلبات بعد</p>
+                    <p className="text-sm text-muted-foreground mt-1">الطلبات ستظهر هنا عند استقبالها</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {requests.map((req, i) => (
+                      <motion.div
+                        key={req.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="bg-card border border-border rounded-2xl p-4"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                          <h3 className="font-bold text-foreground">{req.name}</h3>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatDate(req.created_at)}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-3 text-sm">
+                          <a href={`mailto:${req.email}`} className="text-primary hover:underline flex items-center gap-1">
+                            <Mail className="w-3.5 h-3.5" />
+                            {req.email}
+                          </a>
+                          {req.phone && (
+                            <a href={`tel:${req.phone}`} className="text-primary hover:underline flex items-center gap-1">
+                              <Phone className="w-3.5 h-3.5" />
+                              {req.phone}
+                            </a>
+                          )}
+                        </div>
+                        {req.message && (
+                          <p className="text-sm text-muted-foreground mt-2 bg-secondary/50 rounded-xl p-3">{req.message}</p>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="space-y-3">
-                {requests.map((req, i) => (
-                  <motion.div
-                    key={req.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="bg-card border border-border rounded-2xl p-4"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-foreground">{req.name}</h3>
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(req.created_at)}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-3 text-sm">
-                      <a href={`mailto:${req.email}`} className="text-primary hover:underline flex items-center gap-1">
-                        <Mail className="w-3.5 h-3.5" />
-                        {req.email}
-                      </a>
-                      {req.phone && (
-                        <a href={`tel:${req.phone}`} className="text-primary hover:underline flex items-center gap-1">
-                          <Phone className="w-3.5 h-3.5" />
-                          {req.phone}
-                        </a>
-                      )}
-                    </div>
-                    {req.message && (
-                      <p className="text-sm text-muted-foreground mt-2 bg-secondary/50 rounded-xl p-3">{req.message}</p>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
+              <SubscriptionManager />
             )}
           </motion.div>
         )}
