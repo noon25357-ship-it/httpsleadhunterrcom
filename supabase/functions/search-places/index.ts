@@ -24,30 +24,30 @@ interface PlaceResult {
   websiteUrl?: string;
 }
 
-// Category mapping to Google Places types
-const categoryToType: Record<string, string> = {
-  مطاعم: "restaurant",
-  كافيهات: "cafe",
-  صالونات: "beauty_salon",
-  ورش: "car_repair",
-  عيادات: "doctor",
-  محلات_ملابس: "clothing_store",
-  صيدليات: "pharmacy",
-  فنادق: "lodging",
-  مدارس: "school",
-  مكتبات: "book_store",
+// Category mapping for search queries
+const categorySearchTerms: Record<string, string> = {
+  مطاعم: "restaurants",
+  كافيهات: "cafes",
+  صالونات: "beauty salons",
+  ورش: "car repair shops",
+  عيادات: "clinics",
+  محلات_ملابس: "clothing stores",
+  صيدليات: "pharmacies",
+  فنادق: "hotels",
+  مدارس: "schools",
+  مكتبات: "bookstores",
 };
 
-// City coordinates
-const cityCoords: Record<string, { lat: number; lng: number }> = {
-  الرياض: { lat: 24.7136, lng: 46.6753 },
-  جدة: { lat: 21.4858, lng: 39.1925 },
-  الدمام: { lat: 26.4207, lng: 50.0888 },
-  "المدينة المنورة": { lat: 24.4539, lng: 39.6142 },
-  مكة: { lat: 21.3891, lng: 39.8579 },
-  الخبر: { lat: 26.2172, lng: 50.1971 },
-  تبوك: { lat: 28.3835, lng: 36.5662 },
-  أبها: { lat: 18.2164, lng: 42.5053 },
+// City coordinates for SerpAPI
+const cityCoords: Record<string, { lat: number; lng: number; nameEn: string }> = {
+  الرياض: { lat: 24.7136, lng: 46.6753, nameEn: "Riyadh" },
+  جدة: { lat: 21.4858, lng: 39.1925, nameEn: "Jeddah" },
+  الدمام: { lat: 26.4207, lng: 50.0888, nameEn: "Dammam" },
+  "المدينة المنورة": { lat: 24.4539, lng: 39.6142, nameEn: "Medina" },
+  مكة: { lat: 21.3891, lng: 39.8579, nameEn: "Mecca" },
+  الخبر: { lat: 26.2172, lng: 50.1971, nameEn: "Khobar" },
+  تبوك: { lat: 28.3835, lng: 36.5662, nameEn: "Tabuk" },
+  أبها: { lat: 18.2164, lng: 42.5053, nameEn: "Abha" },
 };
 
 function calculateScore(lead: {
@@ -73,10 +73,10 @@ serve(async (req) => {
   }
 
   try {
-    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_PLACES_API_KEY");
-    if (!GOOGLE_API_KEY) {
+    const SERPAPI_KEY = Deno.env.get("SERPAPI_API_KEY");
+    if (!SERPAPI_KEY) {
       return new Response(
-        JSON.stringify({ error: "Google Places API key not configured" }),
+        JSON.stringify({ error: "SerpAPI key not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -98,56 +98,50 @@ serve(async (req) => {
       );
     }
 
-    const placeType = categoryToType[category] || "establishment";
+    const searchTerm = categorySearchTerms[category] || category;
+    const query = `${searchTerm} in ${coords.nameEn}`;
 
-    // Step 1: Text Search to find places
-    const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(category + " في " + city)}&location=${coords.lat},${coords.lng}&radius=15000&type=${placeType}&language=ar&key=${GOOGLE_API_KEY}`;
+    // Use SerpAPI Google Maps endpoint
+    const serpUrl = `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(query)}&ll=@${coords.lat},${coords.lng},14z&type=search&api_key=${SERPAPI_KEY}`;
 
-    console.log("Searching for:", category, "in", city);
-    const searchResp = await fetch(searchUrl);
-    const searchData = await searchResp.json();
+    console.log("SerpAPI searching for:", query);
+    const serpResp = await fetch(serpUrl);
+    const serpData = await serpResp.json();
 
-    if (searchData.status !== "OK" && searchData.status !== "ZERO_RESULTS") {
-      console.error("Google Places API error:", searchData.status, searchData.error_message);
+    if (serpData.error) {
+      console.error("SerpAPI error:", serpData.error);
       return new Response(
-        JSON.stringify({ error: `Google API error: ${searchData.status}`, details: searchData.error_message }),
+        JSON.stringify({ error: `SerpAPI error: ${serpData.error}` }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const places = searchData.results || [];
-    console.log(`Found ${places.length} places`);
+    const places = serpData.local_results || [];
+    console.log(`Found ${places.length} places via SerpAPI`);
 
-    // Step 2: Get details for each place (limited to first 10 for speed)
     const detailedLeads: PlaceResult[] = [];
 
-    const placesToProcess = places.slice(0, 10);
+    // Process up to 15 results
+    const placesToProcess = places.slice(0, 15);
 
     for (const place of placesToProcess) {
       try {
-        const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,business_status,url,geometry&language=ar&key=${GOOGLE_API_KEY}`;
-
-        const detailResp = await fetch(detailUrl);
-        const detailData = await detailResp.json();
-
-        if (detailData.status !== "OK") continue;
-
-        const d = detailData.result;
-        const hasWebsite = !!d.website;
-        const phone = d.formatted_phone_number || "";
-        const reviews = d.user_ratings_total || 0;
-        const rating = d.rating || 0;
-        const isActive = d.business_status === "OPERATIONAL";
+        const hasWebsite = !!place.website;
+        const phone = place.phone || "";
+        const reviews = place.reviews || 0;
+        const rating = place.rating || 0;
+        const isActive = place.type !== "permanently_closed";
 
         const { score, label } = calculateScore({ hasWebsite, phone, reviews, rating, isActive });
 
         // Extract area from address
-        const addressParts = (d.formatted_address || "").split("،");
+        const address = place.address || "";
+        const addressParts = address.split("،");
         const area = addressParts.length > 1 ? addressParts[1].trim() : addressParts[0]?.trim() || city;
 
         detailedLeads.push({
-          id: `gp-${place.place_id}`,
-          name: d.name || place.name,
+          id: `sp-${place.place_id || place.data_id || Math.random().toString(36).substr(2, 9)}`,
+          name: place.title || "Unknown",
           category,
           area,
           city,
@@ -158,12 +152,14 @@ serve(async (req) => {
           isActive,
           score,
           label,
-          mapsUrl: d.url || `https://maps.google.com/?q=${encodeURIComponent(d.name + " " + city)}`,
-          address: d.formatted_address || "",
-          websiteUrl: d.website || "",
+          mapsUrl: place.place_id
+            ? `https://www.google.com/maps/place/?q=place_id:${place.place_id}`
+            : `https://maps.google.com/?q=${encodeURIComponent((place.title || "") + " " + city)}`,
+          address,
+          websiteUrl: place.website || "",
         });
       } catch (e) {
-        console.error("Error fetching place details:", e);
+        console.error("Error processing place:", e);
         continue;
       }
     }
