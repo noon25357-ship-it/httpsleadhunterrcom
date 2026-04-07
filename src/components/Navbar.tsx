@@ -24,6 +24,12 @@ const Navbar = () => {
           >
             تواصل معنا
           </Link>
+          <Link
+            to="/intent-leads"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+          >
+            Intent Leads
+          </Link>
           <a
             href="/register"
             className="text-sm bg-primary text-primary-foreground px-4 py-1.5 rounded-lg font-bold hover:brightness-110 transition-all"

@@ -128,6 +128,60 @@ export type Database = {
         }
         Relationships: []
       }
+      intent_leads: {
+        Row: {
+          ai_summary: string | null
+          author: string | null
+          content: string
+          created_at: string
+          id: string
+          intent_category: string
+          intent_score: number
+          source: string
+          source_url: string
+          status: string
+          subreddit: string | null
+          suggested_reply: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          author?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          intent_category?: string
+          intent_score?: number
+          source: string
+          source_url: string
+          status?: string
+          subreddit?: string | null
+          suggested_reply?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          author?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          intent_category?: string
+          intent_score?: number
+          source?: string
+          source_url?: string
+          status?: string
+          subreddit?: string | null
+          suggested_reply?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
