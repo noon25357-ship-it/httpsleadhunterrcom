@@ -20,14 +20,14 @@ export interface SmartLead {
 }
 
 export const PIPELINE_STATUSES: Record<PipelineStatus, { label: string; emoji: string; color: string }> = {
-  new: { label: 'جديد', emoji: '🆕', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  offer_generated: { label: 'تم توليد العرض', emoji: '⚡', color: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
-  contacted: { label: 'تم التواصل', emoji: '📤', color: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' },
-  replied: { label: 'رد', emoji: '💬', color: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30' },
-  interested: { label: 'مهتم', emoji: '🔥', color: 'bg-orange-500/15 text-orange-400 border-orange-500/30' },
-  follow_up: { label: 'متابعة', emoji: '🔄', color: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30' },
-  closed: { label: 'مغلق', emoji: '✅', color: 'bg-primary/15 text-primary border-primary/30' },
-  not_interested: { label: 'غير مهتم', emoji: '❌', color: 'bg-destructive/15 text-destructive border-destructive/30' },
+  new: { label: 'جديد', emoji: '🆕', color: 'bg-blue-500/20 text-blue-300 border-blue-400/50' },
+  offer_generated: { label: 'تم توليد العرض', emoji: '⚡', color: 'bg-purple-500/20 text-purple-300 border-purple-400/50' },
+  contacted: { label: 'تم التواصل', emoji: '📤', color: 'bg-yellow-500/20 text-yellow-300 border-yellow-400/50' },
+  replied: { label: 'رد', emoji: '💬', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50' },
+  interested: { label: 'مهتم', emoji: '🔥', color: 'bg-orange-500/20 text-orange-300 border-orange-400/50' },
+  follow_up: { label: 'متابعة', emoji: '🔄', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-400/50' },
+  closed: { label: 'مغلق', emoji: '✅', color: 'bg-primary/20 text-primary border-primary/50' },
+  not_interested: { label: 'غير مهتم', emoji: '❌', color: 'bg-destructive/20 text-destructive border-destructive/50' },
 };
 
 function calcScore(lead: Omit<SmartLead, 'opportunityScore' | 'opportunityReasons' | 'pipelineStatus' | 'notes' | 'lastContact' | 'nextFollowUp'>): { score: number; reasons: string[] } {
