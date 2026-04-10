@@ -38,7 +38,7 @@ const AIGenerateOfferButton = ({ lead, onGenerated }: AIGenerateOfferButtonProps
         className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-bold hover:brightness-110 hover:shadow-[0_0_20px_hsl(145_80%_42%/0.3)] transition-all active:scale-[0.98]"
       >
         <Sparkles className="w-4 h-4" />
-        توليد عرض AI ⚡
+        ولّد رسالة ✨
       </button>
     );
   }
