@@ -3,18 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Calendar, CheckCircle2, ChevronDown } from "lucide-react";
 import type { SmartLead, PipelineStatus } from "./types";
 import { PIPELINE_STATUSES } from "./types";
-
-/* ── Next action per status ── */
-const NEXT_ACTION: Record<PipelineStatus, { label: string; emoji: string; next: PipelineStatus } | null> = {
-  new: { label: 'نقل إلى محفوظ', emoji: '📥', next: 'offer_generated' },
-  offer_generated: { label: 'نقل إلى تم التواصل', emoji: '📤', next: 'contacted' },
-  contacted: { label: 'نقل إلى بانتظار رد', emoji: '💬', next: 'replied' },
-  replied: { label: 'نقل إلى مهتم', emoji: '🔥', next: 'interested' },
-  interested: { label: 'نقل إلى عرض مرسل', emoji: '⚡', next: 'follow_up' },
-  follow_up: { label: 'نقل إلى مغلق', emoji: '✅', next: 'closed' },
-  closed: null,
-  not_interested: null,
-};
+import AIGenerateOfferButton from "./AIGenerateOfferButton";
 
 /* ── Score ring color ── */
 const scoreRing = (s: number) =>
@@ -31,15 +20,7 @@ interface SmartLeadCardProps {
 const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
   const [justChanged, setJustChanged] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const action = NEXT_ACTION[lead.pipelineStatus];
   const statusConfig = PIPELINE_STATUSES[lead.pipelineStatus];
-
-  const handleAction = () => {
-    if (!action) return;
-    setJustChanged(true);
-    onUpdate({ ...lead, pipelineStatus: action.next, lastContact: new Date().toISOString() });
-    setTimeout(() => setJustChanged(false), 1200);
-  };
 
   const handleStatusChange = (status: PipelineStatus) => {
     setJustChanged(true);
@@ -58,6 +39,7 @@ const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
   };
 
   const reasons = lead.opportunityReasons.slice(0, 2);
+  const isTerminal = lead.pipelineStatus === 'closed' || lead.pipelineStatus === 'not_interested';
 
   return (
     <motion.div
@@ -90,7 +72,6 @@ const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
       <div className="p-4 sm:p-5 flex flex-col gap-4">
         {/* ── Header: Score + Name + Location ── */}
         <div className="flex items-start gap-3">
-          {/* Score circle */}
           <div className={`shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 flex items-center justify-center ${scoreRing(lead.opportunityScore)}`}>
             <span className="text-base sm:text-lg font-black leading-none">{lead.opportunityScore}%</span>
           </div>
@@ -108,7 +89,21 @@ const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
           </div>
         </div>
 
-        {/* ── Status badge (clickable) ── */}
+        {/* ── Why this lead ── */}
+        {reasons.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">لماذا هذا العميل؟</span>
+            <div className="flex flex-wrap gap-1.5">
+              {reasons.map((r, i) => (
+                <span key={i} className="text-[11px] sm:text-xs bg-secondary/80 text-muted-foreground px-2.5 py-1 rounded-lg border border-border/50 leading-tight">
+                  💡 {r}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Status badge (clickable dropdown) ── */}
         <div className="relative">
           <button
             onClick={() => setShowStatusMenu(!showStatusMenu)}
@@ -142,20 +137,6 @@ const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
           </AnimatePresence>
         </div>
 
-        {/* ── Why this lead ── */}
-        {reasons.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">لماذا هذا العميل؟</span>
-            <div className="flex flex-wrap gap-1.5">
-              {reasons.map((r, i) => (
-                <span key={i} className="text-[11px] sm:text-xs bg-secondary/80 text-muted-foreground px-2.5 py-1 rounded-lg border border-border/50 leading-tight">
-                  💡 {r}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* ── Timeline info ── */}
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
           {lead.lastContact ? (
@@ -175,30 +156,14 @@ const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
           )}
         </div>
 
-        {/* ── Main CTA ── */}
-        <AnimatePresence mode="wait">
-          {action ? (
-            <motion.button
-              key={lead.pipelineStatus}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              onClick={handleAction}
-              className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:brightness-110 hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)] transition-all active:scale-[0.97]"
-            >
-              {action.emoji} {action.label}
-            </motion.button>
-          ) : (
-            <motion.div
-              key="done"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="w-full py-3 rounded-xl bg-secondary/50 text-center text-xs text-muted-foreground font-semibold"
-            >
-              {lead.pipelineStatus === 'closed' ? '✅ تم الإغلاق' : '❌ غير مهتم'}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* ── Main CTA: AI Message Generation ── */}
+        {isTerminal ? (
+          <div className="w-full py-3 rounded-xl bg-secondary/50 text-center text-xs text-muted-foreground font-semibold">
+            {lead.pipelineStatus === 'closed' ? '✅ تم الإغلاق' : '❌ غير مهتم'}
+          </div>
+        ) : (
+          <AIGenerateOfferButton lead={lead} />
+        )}
       </div>
     </motion.div>
   );
