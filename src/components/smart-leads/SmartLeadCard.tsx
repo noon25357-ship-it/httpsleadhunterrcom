@@ -6,12 +6,12 @@ import { PIPELINE_STATUSES } from "./types";
 
 /* ── Next action per status ── */
 const NEXT_ACTION: Record<PipelineStatus, { label: string; emoji: string; next: PipelineStatus } | null> = {
-  new: { label: 'أنشئ عرض', emoji: '⚡', next: 'offer_generated' },
-  offer_generated: { label: 'أرسل العرض', emoji: '📤', next: 'contacted' },
-  contacted: { label: 'سجّل رد', emoji: '💬', next: 'replied' },
-  replied: { label: 'مهتم؟', emoji: '🔥', next: 'interested' },
-  interested: { label: 'تابع', emoji: '🔄', next: 'follow_up' },
-  follow_up: { label: 'أغلق الصفقة', emoji: '✅', next: 'closed' },
+  new: { label: 'نقل إلى محفوظ', emoji: '📥', next: 'offer_generated' },
+  offer_generated: { label: 'نقل إلى تم التواصل', emoji: '📤', next: 'contacted' },
+  contacted: { label: 'نقل إلى بانتظار رد', emoji: '💬', next: 'replied' },
+  replied: { label: 'نقل إلى مهتم', emoji: '🔥', next: 'interested' },
+  interested: { label: 'نقل إلى عرض مرسل', emoji: '⚡', next: 'follow_up' },
+  follow_up: { label: 'نقل إلى مغلق', emoji: '✅', next: 'closed' },
   closed: null,
   not_interested: null,
 };
