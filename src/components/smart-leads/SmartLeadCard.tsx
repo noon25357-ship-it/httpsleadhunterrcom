@@ -120,15 +120,15 @@ const SmartLeadCard = ({ lead, index, onUpdate }: SmartLeadCardProps) => {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="absolute top-full right-0 mt-1 z-30 bg-card border border-border rounded-xl shadow-xl p-1.5 min-w-[160px]"
+                className="absolute top-full right-0 mt-1 z-30 bg-card border border-border rounded-xl shadow-2xl p-1.5 min-w-[180px]"
               >
                 {Object.entries(PIPELINE_STATUSES).map(([key, val]) => (
                   <button
                     key={key}
                     onClick={() => handleStatusChange(key as PipelineStatus)}
-                    className={`w-full text-right flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors hover:bg-secondary/80 ${lead.pipelineStatus === key ? 'bg-secondary text-foreground' : 'text-muted-foreground'}`}
+                    className={`w-full text-right flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors hover:bg-secondary ${lead.pipelineStatus === key ? 'bg-secondary text-foreground' : 'text-foreground/80'}`}
                   >
-                    <span>{val.emoji}</span>
+                    <span className="text-sm">{val.emoji}</span>
                     <span>{val.label}</span>
                   </button>
                 ))}
