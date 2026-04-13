@@ -22,11 +22,14 @@ const HeroSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-5 leading-tight text-foreground">
-            اكتشف أنشطة تجارية تحتاج خدماتك
-            <span className="neon-text block mt-1 sm:mt-2">وابدأ التواصل معها برسائل جاهزة بالذكاء الاصطناعي</span>
+            اكتشف أنشطة تحتاج خدماتك
+            <span className="neon-text block mt-1 sm:mt-2">وابدأ التواصل برسائل جاهزة</span>
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed px-2">
-            LeadHunter يبحث لك في Google Maps، يرتب الفرص المناسبة، ويجهز لك رسالة تواصل خلال دقائق.
+            LeadHunter يبحث لك في Google Maps، يحدد الأنشطة المناسبة لخدمتك، ويولّد لك رسالة تواصل جاهزة بالذكاء الاصطناعي خلال دقائق.
+          </p>
+          <p className="text-xs sm:text-sm text-muted-foreground/70 mt-3">
+            مناسب لـ: مصممين المواقع، المسوقين، الوكالات، الفريلانسرز، وأصحاب الخدمات
           </p>
         </motion.div>
 
