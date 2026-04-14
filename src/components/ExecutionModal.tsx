@@ -129,7 +129,7 @@ const ExecutionModal = ({ saved, onClose, onExecute, onStatusChange }: Execution
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 40, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-lg bg-card border border-border rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-lg bg-card border border-border rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto"
           dir="rtl"
         >
           {/* Header */}
@@ -153,7 +153,7 @@ const ExecutionModal = ({ saved, onClose, onExecute, onStatusChange }: Execution
                 {/* Service selector */}
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground mb-1.5">الخدمة</p>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1.5 flex-wrap">
                     {SERVICE_OPTIONS.map((s) => (
                       <button
                         key={s.key}

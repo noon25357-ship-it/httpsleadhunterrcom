@@ -195,14 +195,14 @@ const FollowUpReminders = ({ leads, onExecuteTask }: FollowUpRemindersProps) => 
                       exit={{ opacity: 0, x: 100, transition: { duration: 0.3 } }}
                       className={`rounded-xl border ${urgencyStyles[suggestion.urgency]} overflow-hidden`}
                     >
-                      <div className="flex items-center gap-3 px-3 py-3">
+                      <div className="flex items-start gap-2 px-3 py-3 flex-wrap">
                         {/* Urgency icon */}
-                        {urgencyIcon}
+                        <div className="mt-0.5">{urgencyIcon}</div>
 
                         {/* Lead info + suggested action */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-foreground text-sm truncate">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-foreground text-sm truncate max-w-[140px] sm:max-w-none">
                               {lead.name}
                             </span>
                             <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded-full text-muted-foreground shrink-0">
@@ -215,7 +215,7 @@ const FollowUpReminders = ({ leads, onExecuteTask }: FollowUpRemindersProps) => 
                         </div>
 
                         {/* Action buttons */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                           {/* Skip button */}
                           <button
                             onClick={() => skipTask(saved.id)}
