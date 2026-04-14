@@ -15,6 +15,7 @@ import {
 } from "@/lib/leadStatuses";
 import type { Lead } from "@/lib/leadData";
 import ContactModal from "@/components/ContactModal";
+import FollowUpReminders from "@/components/FollowUpReminders";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
@@ -475,6 +476,9 @@ const MyLeads = () => {
             })}
           </div>
         )}
+
+        {/* Follow-up Reminders */}
+        <FollowUpReminders leads={savedLeads} onMarkContacted={markAsContacted} />
 
         {/* ⑦ Pipeline View */}
         {viewMode === "pipeline" ? (
