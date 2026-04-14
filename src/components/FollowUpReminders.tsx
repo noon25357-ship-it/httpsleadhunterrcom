@@ -195,7 +195,7 @@ const FollowUpReminders = ({ leads, onExecuteTask }: FollowUpRemindersProps) => 
                       exit={{ opacity: 0, x: 100, transition: { duration: 0.3 } }}
                       className={`rounded-xl border ${urgencyStyles[suggestion.urgency]} overflow-hidden`}
                     >
-                      <div className="flex items-center gap-3 px-3 py-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 px-3 py-3">
                         {/* Urgency icon */}
                         {urgencyIcon}
 
@@ -215,7 +215,7 @@ const FollowUpReminders = ({ leads, onExecuteTask }: FollowUpRemindersProps) => 
                         </div>
 
                         {/* Action buttons */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                           {/* Skip button */}
                           <button
                             onClick={() => skipTask(saved.id)}
