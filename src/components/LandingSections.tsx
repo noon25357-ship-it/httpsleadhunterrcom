@@ -182,7 +182,8 @@ const LandingSections = () => {
               className={`glass-card rounded-xl p-5 sm:p-6 flex flex-col ${plan.highlight ? "neon-border-strong" : ""}`}
             >
               <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">{plan.name}</h3>
-              <p className="text-xl sm:text-2xl font-black neon-text mb-3 sm:mb-4">{plan.price}</p>
+              <p className="text-xl sm:text-2xl font-black neon-text mb-1 sm:mb-2">{plan.price}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">{plan.tagline}</p>
               <ul className="space-y-2 mb-5 sm:mb-6 flex-1">
                 {plan.features.map((f, j) => (
                   <li key={j} className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
