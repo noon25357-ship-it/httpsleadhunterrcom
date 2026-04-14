@@ -330,8 +330,8 @@ const Dashboard = () => {
       </div>
 
       {/* Bottom tabs (mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-border">
-        <div className="max-w-md mx-auto flex items-center justify-around h-16">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-border pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-md mx-auto flex items-center justify-around h-14">
           {tabs.map((tab) => (
             <button
               key={tab.id}
