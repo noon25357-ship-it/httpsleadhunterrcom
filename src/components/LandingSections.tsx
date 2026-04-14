@@ -28,6 +28,7 @@ const plans = [
   {
     name: "مجاني",
     price: "0 ر.س",
+    tagline: "جرّب وشوف القيمة",
     features: ["3 عمليات بحث شهريًا", "بحث أساسي", "حفظ الليدز", "Lead Scoring"],
     cta: "ابدأ مجانًا",
     href: "/register",
@@ -37,18 +38,20 @@ const plans = [
   {
     name: "أساسي",
     price: "49 ر.س / شهر",
+    tagline: "ابدأ تستخدمه في شغلك فعليًا",
     features: ["100 عملية بحث شهريًا", "تصدير CSV", "Lead Scoring متقدم", "فلترة متقدمة"],
-    cta: "تواصل معنا",
-    href: "/contact",
+    cta: "اشترك الآن",
+    href: "/register",
     internal: true,
     highlight: true,
   },
   {
     name: "برو",
     price: "149 ر.س / شهر",
-    features: ["بحث غير محدود", "Google Sheets", "أولوية في النتائج", "دعم مباشر"],
-    cta: "تواصل معنا",
-    href: "/contact",
+    tagline: "للوكالات والمسوقين اللي يعتمدون عليه يوميًا",
+    features: ["بحث موسع", "ربط مع Google Sheets", "أولوية في النتائج", "دعم مباشر"],
+    cta: "اشترك الآن",
+    href: "/register",
     internal: true,
     highlight: false,
   },
@@ -179,7 +182,8 @@ const LandingSections = () => {
               className={`glass-card rounded-xl p-5 sm:p-6 flex flex-col ${plan.highlight ? "neon-border-strong" : ""}`}
             >
               <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">{plan.name}</h3>
-              <p className="text-xl sm:text-2xl font-black neon-text mb-3 sm:mb-4">{plan.price}</p>
+              <p className="text-xl sm:text-2xl font-black neon-text mb-1 sm:mb-2">{plan.price}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">{plan.tagline}</p>
               <ul className="space-y-2 mb-5 sm:mb-6 flex-1">
                 {plan.features.map((f, j) => (
                   <li key={j} className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
