@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, LogOut, Filter } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useLeadManager } from "@/hooks/useLeadManager";
 import {
@@ -156,6 +157,7 @@ const MyLeads = () => {
             <span className="font-black text-lg text-foreground">LeadHunter</span>
           </Link>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
               <Search className="w-4 h-4" />
               <span className="hidden sm:inline">البحث</span>
