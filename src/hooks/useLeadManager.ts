@@ -36,7 +36,7 @@ export function useLeadManager(userId: string | undefined) {
       .insert({
         user_id: userId,
         lead_data: lead as any,
-        status: "saved" as any,
+        status: "new" as any,
         last_action: "saved" as any,
         last_action_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

@@ -84,11 +84,11 @@ export function getFollowUpSuggestion(
     };
   }
 
-  if (status === "offer_sent" && daysElapsed >= 2) {
+  if ((status === "no_response" || status === "follow_up") && daysElapsed >= 2) {
     return {
       type: "no_response",
       urgency: daysElapsed >= 5 ? "high" : "medium",
-      label: `${daysElapsed} يوم من إرسال العرض`,
+      label: `${daysElapsed} يوم بدون تقدم`,
       message: NO_RESPONSE_MESSAGES[0],
       daysElapsed,
     };
@@ -104,11 +104,11 @@ export function getFollowUpSuggestion(
     };
   }
 
-  if (status === "replied" && daysElapsed >= 2) {
+  if (status === "negotiation" && daysElapsed >= 2) {
     return {
       type: "no_response",
       urgency: "medium",
-      label: `رد — ${daysElapsed} يوم بدون متابعة`,
+      label: `تفاوض — ${daysElapsed} يوم بدون متابعة`,
       message: INTERESTED_FOLLOWUP[0],
       daysElapsed,
     };
