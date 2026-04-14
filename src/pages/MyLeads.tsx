@@ -477,6 +477,9 @@ const MyLeads = () => {
           </div>
         )}
 
+        {/* Follow-up Reminders */}
+        <FollowUpReminders leads={savedLeads} onMarkContacted={markAsContacted} />
+
         {/* ⑦ Pipeline View */}
         {viewMode === "pipeline" ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
