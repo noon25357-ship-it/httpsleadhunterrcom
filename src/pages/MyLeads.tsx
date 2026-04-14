@@ -230,12 +230,12 @@ const MyLeads = () => {
 
         {/* Pipeline View */}
         {viewMode === "pipeline" ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory md:grid md:grid-cols-4 md:overflow-visible">
             {STATUS_ORDER.filter(s => !["won", "lost"].includes(s) || (counts[s] || 0) > 0).map((s) => {
               const info = LEAD_STATUSES[s];
               const items = grouped[s] || [];
               return (
-                <div key={s} className="bg-card/50 border border-border rounded-xl p-2">
+                <div key={s} className="bg-card/50 border border-border rounded-xl p-2 min-w-[200px] w-[75vw] sm:w-auto snap-start shrink-0 md:min-w-0 md:w-auto">
                   <div className={`flex items-center gap-1.5 mb-2 px-2 py-1 rounded-lg ${info.color}`}>
                     <span className="text-xs">{info.emoji}</span>
                     <span className="text-xs font-bold">{info.label}</span>
