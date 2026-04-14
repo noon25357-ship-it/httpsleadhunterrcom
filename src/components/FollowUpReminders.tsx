@@ -1,29 +1,35 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Copy, MessageCircle, ChevronDown, ChevronUp, Clock, AlertTriangle, Zap } from "lucide-react";
+import { Bell, ChevronDown, ChevronUp, AlertTriangle, Clock, Zap, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import type { SavedLead, LeadStatus } from "@/lib/leadStatuses";
 import type { Lead } from "@/lib/leadData";
-import { getFollowUpSuggestion, getObjectionResponse, OBJECTION_TYPES, type FollowUpSuggestion } from "@/lib/followUpGenerator";
+import { getFollowUpSuggestion, type FollowUpSuggestion } from "@/lib/followUpGenerator";
+import { openWhatsApp, getNextStatus, calculateFollowUpDate, getNextActionHint } from "@/lib/executionEngine";
 
 interface FollowUpRemindersProps {
   leads: SavedLead[];
-  onMarkContacted: (id: string, channel: "whatsapp" | "call" | "copy") => void;
+  onExecuteTask: (savedId: string, updates: {
+    status: LeadStatus;
+    followUpDate: string;
+    channel: "whatsapp" | "call" | "copy";
+    lastAction: string;
+  }) => Promise<void>;
 }
 
-interface LeadWithFollowUp {
+interface LeadTask {
   saved: SavedLead;
   lead: Lead & { follow_up_date?: string };
   suggestion: FollowUpSuggestion;
 }
 
-const FollowUpReminders = ({ leads, onMarkContacted }: FollowUpRemindersProps) => {
+const FollowUpReminders = ({ leads, onExecuteTask }: FollowUpRemindersProps) => {
   const [expanded, setExpanded] = useState(true);
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
-  const [selectedObjection, setSelectedObjection] = useState<Record<string, string>>({});
+  const [executingIds, setExecutingIds] = useState<Set<string>>(new Set());
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
 
-  // Get all leads that need follow-up
-  const needsFollowUp: LeadWithFollowUp[] = leads
+  const tasks: LeadTask[] = leads
     .map((saved) => {
       const lead = saved.lead_data as Lead & { follow_up_date?: string };
       const suggestion = getFollowUpSuggestion(
@@ -35,28 +41,81 @@ const FollowUpReminders = ({ leads, onMarkContacted }: FollowUpRemindersProps) =
       if (!suggestion) return null;
       return { saved, lead, suggestion };
     })
-    .filter(Boolean) as LeadWithFollowUp[];
+    .filter(Boolean) as LeadTask[];
 
-  // Sort: high urgency first
-  needsFollowUp.sort((a, b) => {
-    const urgencyOrder = { high: 0, medium: 1, low: 2 };
-    return urgencyOrder[a.suggestion.urgency] - urgencyOrder[b.suggestion.urgency];
+  tasks.sort((a, b) => {
+    const order = { high: 0, medium: 1, low: 2 };
+    return order[a.suggestion.urgency] - order[b.suggestion.urgency];
   });
 
-  if (needsFollowUp.length === 0) return null;
+  const visibleTasks = tasks.filter(
+    (t) => !completedIds.has(t.saved.id) && !skippedIds.has(t.saved.id)
+  );
 
-  const highCount = needsFollowUp.filter((l) => l.suggestion.urgency === "high").length;
+  if (visibleTasks.length === 0 && tasks.length === 0) return null;
 
-  const copyMessage = (msg: string) => {
-    navigator.clipboard.writeText(msg);
-    toast.success("تم نسخ الرسالة ✅");
+  const highCount = visibleTasks.filter((t) => t.suggestion.urgency === "high").length;
+
+  const executeTask = async (task: LeadTask) => {
+    const { saved, lead, suggestion } = task;
+    const id = saved.id;
+
+    setExecutingIds((prev) => new Set(prev).add(id));
+
+    // 1. Open WhatsApp with pre-filled message
+    if (lead.phone) {
+      openWhatsApp(lead.phone, suggestion.message);
+    } else {
+      navigator.clipboard.writeText(suggestion.message);
+    }
+
+    // 2. Calculate next status & follow-up
+    const nextStatus = getNextStatus(saved.status as LeadStatus);
+    const score = lead.score || 50;
+    const followUpDate = calculateFollowUpDate(score);
+    const followUpDays = Math.ceil(
+      (new Date(followUpDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+
+    // 3. Persist: status + follow-up + channel
+    await onExecuteTask(id, {
+      status: nextStatus,
+      followUpDate,
+      channel: lead.phone ? "whatsapp" : "copy",
+      lastAction: "message_sent",
+    });
+
+    // 4. Show success feedback with next action hint
+    const hint = getNextActionHint(nextStatus, followUpDays);
+    toast.success(
+      <div className="text-right">
+        <p className="font-bold">تم التنفيذ ✅</p>
+        <p className="text-xs mt-1 opacity-80">📌 {hint}</p>
+      </div>,
+      { duration: 4000 }
+    );
+
+    // 5. Animate removal
+    setExecutingIds((prev) => {
+      const n = new Set(prev);
+      n.delete(id);
+      return n;
+    });
+    setCompletedIds((prev) => new Set(prev).add(id));
   };
 
-  const sendWhatsApp = (lead: Lead, msg: string, savedId: string) => {
-    const phone = lead.phone ? `966${lead.phone.slice(1)}` : "";
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
-    onMarkContacted(savedId, "whatsapp");
+  const skipTask = (id: string) => {
+    setSkippedIds((prev) => new Set(prev).add(id));
+    toast("تم تخطي المهمة", { duration: 2000 });
   };
+
+  const urgencyStyles = {
+    high: "border-red-500/30 bg-red-500/5",
+    medium: "border-orange-500/30 bg-orange-500/5",
+    low: "border-yellow-500/30 bg-yellow-500/5",
+  };
+
+  const completedCount = completedIds.size + skippedIds.size;
 
   return (
     <div className="mb-6">
@@ -69,26 +128,30 @@ const FollowUpReminders = ({ leads, onMarkContacted }: FollowUpRemindersProps) =
           <div className="relative">
             <Bell className="w-5 h-5 text-orange-400" />
             {highCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-[9px] font-black flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-[9px] font-black flex items-center justify-center animate-pulse">
                 {highCount}
               </span>
             )}
           </div>
           <div className="text-right">
             <span className="font-bold text-foreground text-sm">
-              ⏰ تحتاج متابعة ({needsFollowUp.length})
+              ⚡ مهام جاهزة للتنفيذ ({visibleTasks.length})
             </span>
-            {highCount > 0 && (
-              <span className="text-[10px] text-orange-400 font-medium mr-2">
-                {highCount} عاجل
+            {completedCount > 0 && (
+              <span className="text-[10px] text-primary font-medium mr-2">
+                ✅ {completedCount} مكتملة
               </span>
             )}
           </div>
         </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+        {expanded ? (
+          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        )}
       </button>
 
-      {/* Cards */}
+      {/* Task List */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -98,154 +161,105 @@ const FollowUpReminders = ({ leads, onMarkContacted }: FollowUpRemindersProps) =
             className="overflow-hidden"
           >
             <div className="space-y-2 mt-2">
-              {needsFollowUp.map(({ saved, lead, suggestion }) => {
-                const isExpanded = expandedCard === saved.id;
-                const urgencyStyles = {
-                  high: "border-red-500/30 bg-red-500/5",
-                  medium: "border-orange-500/30 bg-orange-500/5",
-                  low: "border-yellow-500/30 bg-yellow-500/5",
-                };
-                const urgencyIcon = suggestion.urgency === "high"
-                  ? <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                  : <Clock className="w-3.5 h-3.5 text-orange-400" />;
+              {visibleTasks.length === 0 && tasks.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-6 bg-primary/5 border border-primary/20 rounded-xl"
+                >
+                  <Check className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <p className="font-bold text-foreground text-sm">كل المهام مكتملة 🎉</p>
+                  <p className="text-xs text-muted-foreground mt-1">أحسنت! تابع شغلك</p>
+                </motion.div>
+              )}
 
-                return (
-                  <motion.div
-                    key={saved.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`rounded-xl border ${urgencyStyles[suggestion.urgency]} overflow-hidden`}
-                  >
-                    {/* Summary row */}
-                    <button
-                      onClick={() => setExpandedCard(isExpanded ? null : saved.id)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-right"
+              <AnimatePresence mode="popLayout">
+                {visibleTasks.map((task) => {
+                  const { saved, lead, suggestion } = task;
+                  const isExecuting = executingIds.has(saved.id);
+                  const urgencyIcon =
+                    suggestion.urgency === "high" ? (
+                      <AlertTriangle className="w-4 h-4 text-red-400" />
+                    ) : suggestion.urgency === "medium" ? (
+                      <Clock className="w-4 h-4 text-orange-400" />
+                    ) : (
+                      <Clock className="w-4 h-4 text-yellow-400" />
+                    );
+
+                  return (
+                    <motion.div
+                      key={saved.id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: 100, transition: { duration: 0.3 } }}
+                      className={`rounded-xl border ${urgencyStyles[suggestion.urgency]} overflow-hidden`}
                     >
-                      {urgencyIcon}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-foreground text-sm truncate">{lead.name}</span>
-                          <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded-full text-muted-foreground shrink-0">
-                            {lead.category}
-                          </span>
+                      <div className="flex items-center gap-3 px-3 py-3">
+                        {/* Urgency icon */}
+                        {urgencyIcon}
+
+                        {/* Lead info + suggested action */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-foreground text-sm truncate">
+                              {lead.name}
+                            </span>
+                            <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded-full text-muted-foreground shrink-0">
+                              {lead.category}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-orange-400 font-bold mt-0.5">
+                            {suggestion.label}
+                          </p>
                         </div>
-                        <p className="text-[11px] text-orange-400 font-medium mt-0.5">
-                          {suggestion.label}
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          {/* Skip button */}
+                          <button
+                            onClick={() => skipTask(saved.id)}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:bg-secondary/80 hover:text-foreground transition-colors"
+                            title="تخطي"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+
+                          {/* Execute button — ONE CLICK */}
+                          <button
+                            onClick={() => executeTask(task)}
+                            disabled={isExecuting}
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                              isExecuting
+                                ? "bg-primary/30 text-primary cursor-wait"
+                                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
+                            }`}
+                          >
+                            {isExecuting ? (
+                              <>
+                                <div className="w-3 h-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                                جاري التنفيذ...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="w-3.5 h-3.5" />
+                                نفّذ ⚡
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Preview message strip */}
+                      <div className="px-3 pb-2">
+                        <p className="text-[10px] text-muted-foreground leading-relaxed truncate">
+                          💬 {suggestion.message.split("\n")[0]}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {lead.phone && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              sendWhatsApp(lead, suggestion.message, saved.id);
-                            }}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/15 text-primary text-[11px] font-bold hover:bg-primary/25 transition-colors"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            تابع
-                          </button>
-                        )}
-                        {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
-                      </div>
-                    </button>
-
-                    {/* Expanded: message + objection handling */}
-                    <AnimatePresence>
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-3 pb-3 border-t border-border/30 pt-2">
-                            {/* Auto-generated follow-up message */}
-                            <div className="bg-secondary/60 rounded-lg p-3 mb-2">
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-[10px] font-bold text-foreground flex items-center gap-1">
-                                  <Zap className="w-3 h-3 text-primary" />
-                                  رسالة متابعة جاهزة
-                                </span>
-                                <button
-                                  onClick={() => copyMessage(suggestion.message)}
-                                  className="text-[10px] text-primary font-bold flex items-center gap-1 hover:underline"
-                                >
-                                  <Copy className="w-3 h-3" />
-                                  نسخ
-                                </button>
-                              </div>
-                              <p className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-line">
-                                {suggestion.message}
-                              </p>
-                            </div>
-
-                            {/* Quick actions */}
-                            <div className="flex items-center gap-2 mb-2">
-                              {lead.phone && (
-                                <button
-                                  onClick={() => sendWhatsApp(lead, suggestion.message, saved.id)}
-                                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/15 text-primary text-xs font-bold hover:bg-primary/25 transition-colors"
-                                >
-                                  <MessageCircle className="w-3.5 h-3.5" />
-                                  أرسل واتساب
-                                </button>
-                              )}
-                              <button
-                                onClick={() => copyMessage(suggestion.message)}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-secondary text-secondary-foreground text-xs font-bold hover:bg-secondary/80 transition-colors"
-                              >
-                                <Copy className="w-3.5 h-3.5" />
-                                نسخ الرسالة
-                              </button>
-                            </div>
-
-                            {/* Objection handlers */}
-                            <div className="border-t border-border/30 pt-2">
-                              <p className="text-[10px] font-bold text-muted-foreground mb-1.5">رد على اعتراض شائع:</p>
-                              <div className="flex gap-1.5 flex-wrap">
-                                {OBJECTION_TYPES.map((obj) => (
-                                  <button
-                                    key={obj.key}
-                                    onClick={() => setSelectedObjection(prev => ({ ...prev, [saved.id]: obj.key }))}
-                                    className={`text-[10px] px-2 py-1 rounded-full border font-medium transition-colors ${
-                                      selectedObjection[saved.id] === obj.key
-                                        ? "bg-primary/15 text-primary border-primary/30"
-                                        : "bg-secondary text-muted-foreground border-border hover:border-primary/30"
-                                    }`}
-                                  >
-                                    {obj.emoji} {obj.label}
-                                  </button>
-                                ))}
-                              </div>
-                              {selectedObjection[saved.id] && (
-                                <motion.div
-                                  initial={{ opacity: 0, y: 5 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  className="mt-2 bg-secondary/40 rounded-lg p-2.5"
-                                >
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[10px] font-bold text-foreground">💡 رد مقترح</span>
-                                    <button
-                                      onClick={() => copyMessage(getObjectionResponse(selectedObjection[saved.id]))}
-                                      className="text-[10px] text-primary font-bold flex items-center gap-1"
-                                    >
-                                      <Copy className="w-3 h-3" /> نسخ
-                                    </button>
-                                  </div>
-                                  <p className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-line">
-                                    {getObjectionResponse(selectedObjection[saved.id])}
-                                  </p>
-                                </motion.div>
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}
