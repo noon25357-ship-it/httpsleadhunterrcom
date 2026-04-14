@@ -5,6 +5,7 @@ import {
   Search, Bookmark, Settings, LogOut, Crown,
   Zap, ClipboardList, Trash2,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import SearchPanel from "@/components/SearchPanel";
@@ -150,6 +151,7 @@ const Dashboard = () => {
             <span className="font-black text-lg text-foreground">LeadHunter</span>
           </Link>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/my-leads"
               className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 font-bold"
