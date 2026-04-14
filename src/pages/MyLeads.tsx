@@ -6,12 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLeadManager } from "@/hooks/useLeadManager";
 import {
   LEAD_STATUSES, STATUS_ORDER, migrateStatus,
-  type SavedLead, type LeadStatus,
+  type SavedLead, type LeadStatus, type ContactChannel,
 } from "@/lib/leadStatuses";
 import type { Lead } from "@/lib/leadData";
-import ContactModal from "@/components/ContactModal";
 import FollowUpReminders from "@/components/FollowUpReminders";
 import ActionLeadCard from "@/components/ActionLeadCard";
+import ExecutionModal from "@/components/ExecutionModal";
 import { toast } from "sonner";
 
 const MyLeads = () => {
@@ -19,8 +19,8 @@ const MyLeads = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<LeadStatus | "all">("all");
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "pipeline">("list");
+  const [executionTarget, setExecutionTarget] = useState<SavedLead | null>(null);
 
   const {
     savedLeads, fetchSavedLeads, updateLeadStatus,
@@ -39,7 +39,6 @@ const MyLeads = () => {
     if (user) fetchSavedLeads();
   }, [user, fetchSavedLeads]);
 
-  // Migrate old statuses and sort
   const processedLeads = useMemo(() => {
     return savedLeads.map(l => ({
       ...l,
@@ -83,8 +82,32 @@ const MyLeads = () => {
     navigate("/");
   };
 
-  const handlePrimaryAction = (saved: SavedLead, lead: Lead) => {
-    setSelectedLead(lead);
+  const handlePrimaryAction = (saved: SavedLead, _lead: Lead) => {
+    setExecutionTarget(saved);
+  };
+
+  const handleExecute = async (savedId: string, updates: {
+    status: LeadStatus;
+    followUpDate: string;
+    channel: ContactChannel;
+    lastAction: string;
+  }) => {
+    const lead = savedLeads.find(l => l.id === savedId);
+    if (!lead) return;
+
+    const updatedData = { ...(lead.lead_data as any), follow_up_date: updates.followUpDate };
+
+    await supabase.from("saved_leads").update({
+      status: updates.status as any,
+      last_action: updates.lastAction as any,
+      contact_channel: updates.channel as any,
+      last_action_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      lead_data: updatedData as any,
+    }).eq("id", savedId);
+
+    toast.success("تم تحديث الحالة تلقائياً ✅");
+    await fetchSavedLeads();
   };
 
   const handleSaveNote = async (savedId: string, noteText: string) => {
@@ -221,11 +244,10 @@ const MyLeads = () => {
                   <div className="space-y-2 max-h-[60vh] overflow-y-auto">
                     {items.map((saved) => {
                       const lead = saved.lead_data as Lead;
-                      const smartAction = LEAD_STATUSES[saved.status as LeadStatus];
                       return (
                         <button
                           key={saved.id}
-                          onClick={() => setSelectedLead(lead)}
+                          onClick={() => setExecutionTarget(saved)}
                           className="w-full text-right bg-secondary/50 border border-border/50 rounded-lg p-2 text-[11px] hover:bg-secondary/80 transition-colors"
                         >
                           <p className="font-bold text-foreground truncate">{lead.name}</p>
@@ -278,7 +300,15 @@ const MyLeads = () => {
         )}
       </div>
 
-      <ContactModal lead={selectedLead} onClose={() => setSelectedLead(null)} />
+      {/* Execution Modal */}
+      {executionTarget && (
+        <ExecutionModal
+          saved={executionTarget}
+          onClose={() => setExecutionTarget(null)}
+          onExecute={handleExecute}
+          onStatusChange={updateLeadStatus}
+        />
+      )}
     </div>
   );
 };
