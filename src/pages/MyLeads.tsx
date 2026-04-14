@@ -226,7 +226,7 @@ const MyLeads = () => {
         )}
 
         {/* Follow-up Reminders */}
-        <FollowUpReminders leads={processedLeads} onMarkContacted={markAsContacted} />
+        <FollowUpReminders leads={processedLeads} onExecuteTask={handleExecute} />
 
         {/* Pipeline View */}
         {viewMode === "pipeline" ? (
