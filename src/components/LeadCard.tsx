@@ -1,17 +1,12 @@
 import { motion } from "framer-motion";
 import { Star, MapPin, ExternalLink, MessageCircle, Copy, Bookmark, BookmarkCheck, Lightbulb } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Lead } from "@/lib/leadData";
 import { getDefaultMessage } from "@/lib/leadData";
 import { getWhyReasons } from "@/lib/messageGenerator";
 import { LEAD_STATUSES, type SavedLead } from "@/lib/leadStatuses";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
-
-const scoreBadge: Record<string, { text: string; shortText: string; classes: string }> = {
-  hot: { text: "🔥 فرصة قوية", shortText: "🔥 قوية", classes: "bg-primary/15 text-primary neon-border" },
-  warm: { text: "🟡 فرصة متوسطة", shortText: "🟡 متوسطة", classes: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30" },
-  cold: { text: "🔵 فرصة ضعيفة", shortText: "🔵 ضعيفة", classes: "bg-blue-500/15 text-blue-400 border border-blue-500/30" },
-};
 
 interface LeadCardProps {
   lead: Lead;
@@ -24,6 +19,12 @@ interface LeadCardProps {
 }
 
 const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedStatus }: LeadCardProps) => {
+  const { t } = useTranslation();
+  const scoreBadge: Record<string, { text: string; shortText: string; classes: string }> = {
+    hot: { text: t("leadCard.hot"), shortText: t("leadCard.hotShort"), classes: "bg-primary/15 text-primary neon-border" },
+    warm: { text: t("leadCard.warm"), shortText: t("leadCard.warmShort"), classes: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30" },
+    cold: { text: t("leadCard.cold"), shortText: t("leadCard.coldShort"), classes: "bg-blue-500/15 text-blue-400 border border-blue-500/30" },
+  };
   const badge = scoreBadge[lead.label];
   const reasons = getWhyReasons(lead);
   const message = getDefaultMessage("website", "friendly");
@@ -32,7 +33,7 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
 
   const copyMessage = () => {
     navigator.clipboard.writeText(message);
-    toast.success("تم نسخ الرسالة!");
+    toast.success(t("leadCard.messageCopied"));
     trackEvent("copy_message_quick", { leadId: lead.id });
     onCopy?.(lead);
   };
@@ -47,7 +48,6 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="glass-card rounded-xl p-4 sm:p-5 flex flex-col gap-3 group hover:neon-border transition-shadow duration-300 relative"
     >
-      {/* Save button */}
       {onSave && (
         <button
           onClick={() => onSave(lead)}
@@ -56,13 +56,12 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
               ? "bg-primary/20 text-primary"
               : "bg-secondary hover:bg-primary/20 text-muted-foreground hover:text-primary"
           }`}
-          title={isSaved ? "محفوظ" : "حفظ"}
+          title={isSaved ? t("leadCard.saved") : t("leadCard.save")}
         >
           {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
         </button>
       )}
 
-      {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h3 className="text-base sm:text-lg font-bold text-foreground truncate">{lead.name}</h3>
@@ -85,13 +84,12 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         </div>
       </div>
 
-      {/* Stats */}
       <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
         <span className="flex items-center gap-1 text-yellow-400">
           <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
           {lead.rating}
         </span>
-        <span className="text-muted-foreground">{lead.reviews} تقييم</span>
+        <span className="text-muted-foreground">{lead.reviews} {t("leadCard.reviews")}</span>
         <a
           href={lead.mapsUrl}
           target="_blank"
@@ -99,16 +97,15 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
           className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mr-auto"
         >
           <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <span className="text-[10px] sm:text-xs">📍 الموقع</span>
+          <span className="text-[10px] sm:text-xs">{t("leadCard.location")}</span>
         </a>
       </div>
 
-      {/* Why this lead - enhanced */}
       {reasons.length > 0 && (
         <div className="bg-primary/[0.06] border border-primary/15 rounded-lg px-3 py-2.5">
           <div className="flex items-center gap-1.5 mb-1">
             <Lightbulb className="w-3 h-3 text-primary" />
-            <p className="text-[10px] sm:text-xs font-bold text-primary">ليش هذه فرصة؟</p>
+            <p className="text-[10px] sm:text-xs font-bold text-primary">{t("leadCard.whyOpportunity")}</p>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {reasons.map((r) => (
@@ -123,7 +120,6 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         </div>
       )}
 
-      {/* Primary CTA */}
       <button
         onClick={() => {
           trackEvent("click_start_contact", { leadId: lead.id, score: lead.score });
@@ -131,10 +127,9 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         }}
         className="w-full bg-primary text-primary-foreground font-bold py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm hover:brightness-110 hover:shadow-[0_0_20px_hsl(145_80%_42%/0.3)] transition-all mt-auto active:scale-[0.98]"
       >
-        👉 ابدأ التواصل الآن ⚡
+        {t("leadCard.startContact")}
       </button>
 
-      {/* Quick actions */}
       <div className="flex items-center gap-2">
         <a
           href={whatsappUrl}
@@ -147,14 +142,14 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
           className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-medium hover:bg-secondary/80 transition-colors active:scale-[0.98]"
         >
           <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <span>📲 واتساب</span>
+          <span>{t("leadCard.whatsapp")}</span>
         </a>
         <button
           onClick={copyMessage}
           className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-medium hover:bg-secondary/80 transition-colors active:scale-[0.98]"
         >
           <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <span>📋 نسخ رسالة</span>
+          <span>{t("leadCard.copyMessage")}</span>
         </button>
       </div>
     </motion.div>
