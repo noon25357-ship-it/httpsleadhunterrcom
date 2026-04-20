@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send, User, Mail, Phone, MessageSquare, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import LanguageToggle from "@/components/LanguageToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [sending, setSending] = useState(false);
 
@@ -29,11 +33,10 @@ const Contact = () => {
 
     if (error) {
       setSending(false);
-      toast.error("حصل خطأ، حاول مرة ثانية");
+      toast.error(t("contact.error"));
       return;
     }
 
-    // Send confirmation email to user
     await supabase.functions.invoke("send-transactional-email", {
       body: {
         templateName: "contact-confirmation",
@@ -43,7 +46,6 @@ const Contact = () => {
       },
     });
 
-    // Send notification to admin
     await supabase.functions.invoke("send-transactional-email", {
       body: {
         templateName: "new-contact-notification",
@@ -59,13 +61,12 @@ const Contact = () => {
     });
 
     setSending(false);
-    toast.success("تم إرسال طلبك بنجاح! سنتواصل معك قريبًا ⚡");
+    toast.success(t("contact.success"));
     setForm({ name: "", email: "", phone: "", message: "" });
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      {/* Navbar */}
+    <div className="min-h-screen bg-background">
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -74,17 +75,20 @@ const Contact = () => {
             </div>
             <span className="font-black text-lg text-foreground tracking-tight">LeadHunter</span>
           </Link>
-          <Link
-            to="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-          >
-            الرئيسية
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <ThemeToggle />
+            <Link
+              to="/"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              {t("nav.home")}
+              <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* Form Section */}
       <div className="pt-24 pb-16 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -96,9 +100,9 @@ const Contact = () => {
             <div className="inline-flex p-3 rounded-full bg-primary/10 mb-4">
               <Send className="w-6 h-6 text-primary" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-foreground mb-2">تواصل معنا</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground mb-2">{t("contact.title")}</h1>
             <p className="text-sm text-muted-foreground">
-              مهتم بالاشتراك؟ اترك بياناتك وسنتواصل معك
+              {t("contact.subtitle")}
             </p>
           </div>
 
@@ -106,11 +110,10 @@ const Contact = () => {
             onSubmit={handleSubmit}
             className="space-y-4 bg-card border border-border rounded-2xl p-6"
           >
-            {/* Name */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" />
-                الاسم الكامل
+                {t("contact.name")}
               </label>
               <input
                 name="name"
@@ -118,16 +121,15 @@ const Contact = () => {
                 onChange={handleChange}
                 required
                 maxLength={100}
-                placeholder="مثال: محمد العتيبي"
+                placeholder={t("contact.namePlaceholder")}
                 className="w-full bg-secondary text-foreground rounded-xl px-4 py-3 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
               />
             </div>
 
-            {/* Email */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary" />
-                البريد الإلكتروني
+                {t("contact.email")}
               </label>
               <input
                 name="email"
@@ -142,11 +144,10 @@ const Contact = () => {
               />
             </div>
 
-            {/* Phone */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary" />
-                رقم الجوال
+                {t("contact.phone")}
               </label>
               <input
                 name="phone"
@@ -160,11 +161,10 @@ const Contact = () => {
               />
             </div>
 
-            {/* Message */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-primary" />
-                رسالتك (اختياري)
+                {t("contact.messageLabel")}
               </label>
               <textarea
                 name="message"
@@ -172,7 +172,7 @@ const Contact = () => {
                 onChange={handleChange}
                 maxLength={1000}
                 rows={3}
-                placeholder="اكتب استفسارك أو الباقة اللي تبيها..."
+                placeholder={t("contact.messagePlaceholder")}
                 className="w-full bg-secondary text-foreground rounded-xl px-4 py-3 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground resize-none"
               />
             </div>
@@ -183,11 +183,11 @@ const Contact = () => {
               className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-xl text-base hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {sending ? (
-                <span className="animate-pulse">جاري الإرسال...</span>
+                <span className="animate-pulse">{t("contact.sending")}</span>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  أرسل الطلب
+                  {t("contact.send")}
                 </>
               )}
             </button>
