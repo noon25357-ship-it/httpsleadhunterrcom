@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const EmailCapture = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    toast.success("شكراً لك! سنتواصل معك قريباً");
+    toast.success(t("emailCapture.thanks"));
     setEmail("");
   };
 
@@ -22,8 +24,8 @@ const EmailCapture = () => {
       <div className="inline-flex p-3 rounded-full bg-primary/10 mb-4">
         <Mail className="w-6 h-6 text-primary" />
       </div>
-      <h3 className="text-xl font-bold text-foreground mb-2">شفت الفكرة؟</h3>
-      <p className="text-sm text-muted-foreground mb-5">اترك إيميلك للوصول الكامل وميزات حصرية</p>
+      <h3 className="text-xl font-bold text-foreground mb-2">{t("emailCapture.title")}</h3>
+      <p className="text-sm text-muted-foreground mb-5">{t("emailCapture.subtitle")}</p>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           type="email"
@@ -39,7 +41,7 @@ const EmailCapture = () => {
           className="bg-primary text-primary-foreground px-5 py-3 rounded-xl font-bold hover:brightness-110 transition-all flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          سجّل
+          {t("emailCapture.submit")}
         </button>
       </form>
     </motion.div>

@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import HeroRadar from "./HeroRadar";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center overflow-hidden gradient-mesh pt-16">
       <HeroRadar />
@@ -13,7 +15,7 @@ const HeroSection = () => {
           transition={{ duration: 0.4 }}
           className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-primary/30 bg-primary/[0.08] text-primary text-xs sm:text-sm font-medium mb-5 sm:mb-6"
         >
-          ⚡ منتج سعودي 100%
+          {t("hero.badge")}
         </motion.div>
 
         <motion.div
@@ -22,14 +24,14 @@ const HeroSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-5 leading-tight text-foreground">
-            اكتشف أنشطة تحتاج خدماتك
-            <span className="neon-text block mt-1 sm:mt-2">وابدأ التواصل برسائل جاهزة</span>
+            {t("hero.title1")}
+            <span className="neon-text block mt-1 sm:mt-2">{t("hero.title2")}</span>
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed px-2">
-            LeadHunter يبحث لك في Google Maps، يحدد الأنشطة المناسبة لخدمتك، ويولّد لك رسالة تواصل جاهزة بالذكاء الاصطناعي خلال دقائق.
+            {t("hero.subtitle")}
           </p>
           <p className="text-xs sm:text-sm text-muted-foreground/70 mt-3">
-            مناسب للمصممين، المسوقين، الوكالات، وأصحاب الخدمات
+            {t("hero.audience")}
           </p>
         </motion.div>
 
@@ -43,13 +45,13 @@ const HeroSection = () => {
             href="/register"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg hover:brightness-110 transition-all animate-pulse-neon"
           >
-            👉 ابدأ مجانًا
+            {t("hero.ctaStartFree")}
           </a>
           <a
             href="#search"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-secondary text-secondary-foreground font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg hover:bg-secondary/80 transition-all border border-border"
           >
-            👉 جرّب البحث
+            {t("hero.ctaTrySearch")}
           </a>
         </motion.div>
       </div>
