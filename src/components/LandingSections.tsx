@@ -1,63 +1,63 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-
-const problems = [
-  { emoji: "⏳", text: "تضيع وقت تدور عملاء يدوي" },
-  { emoji: "❓", text: "ما تعرف مين فعلاً يحتاج خدمتك" },
-  { emoji: "🚫", text: "تتواصل مع ناس ما عندها نية تشتري" },
-  { emoji: "💸", text: "تضيع فرص لأنك ما تبدأ بالأهم" },
-];
-
-const features = [
-  { title: "بحث ذكي عن ليدز", desc: "اختر المدينة والفئة → يطلع لك بزنسات بدون مواقع جاهزة للتواصل" },
-  { title: "Lead Scoring تلقائي", desc: "نرتب لك أفضل الفرص بناءً على التقييم وعدد المراجعات ووجود رقم تواصل" },
-  { title: "لوحة تحكم بسيطة", desc: "جدول لليدز مع فلترة وتحديد حالة التواصل — كل شي واضح" },
-  { title: "تصدير CSV + نسخ", desc: "حمّل الليدز كملف CSV أو انسخها مباشرة للاستخدام الفوري" },
-];
-
-const audience = [
-  { emoji: "🎨", text: "مصممين مواقع" },
-  { emoji: "📢", text: "مسوقين" },
-  { emoji: "🏢", text: "وكالات" },
-  { emoji: "💻", text: "فريلانسرز" },
-  { emoji: "🛠", text: "أصحاب خدمات" },
-  { emoji: "🚀", text: "أي شخص يبحث عن عملاء" },
-];
-
-const plans = [
-  {
-    name: "مجاني",
-    price: "0 ر.س",
-    tagline: "جرّب وشوف القيمة",
-    features: ["3 عمليات بحث شهريًا", "بحث أساسي", "حفظ الليدز", "Lead Scoring"],
-    cta: "ابدأ مجانًا",
-    href: "/register",
-    internal: true,
-    highlight: false,
-  },
-  {
-    name: "أساسي",
-    price: "49 ر.س / شهر",
-    tagline: "ابدأ تستخدمه في شغلك فعليًا",
-    features: ["100 عملية بحث شهريًا", "تصدير CSV", "Lead Scoring متقدم", "فلترة متقدمة"],
-    cta: "اشترك الآن",
-    href: "/register",
-    internal: true,
-    highlight: true,
-  },
-  {
-    name: "برو",
-    price: "149 ر.س / شهر",
-    tagline: "للوكالات والمسوقين اللي يعتمدون عليه يوميًا",
-    features: ["بحث موسع", "ربط مع Google Sheets", "أولوية في النتائج", "دعم مباشر"],
-    cta: "اشترك الآن",
-    href: "/register",
-    internal: true,
-    highlight: false,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const LandingSections = () => {
+  const { t } = useTranslation();
+
+  const problems = [
+    { emoji: "⏳", text: t("landing.problems.p1") },
+    { emoji: "❓", text: t("landing.problems.p2") },
+    { emoji: "🚫", text: t("landing.problems.p3") },
+    { emoji: "💸", text: t("landing.problems.p4") },
+  ];
+
+  const features = [
+    { title: t("landing.features.f1Title"), desc: t("landing.features.f1Desc") },
+    { title: t("landing.features.f2Title"), desc: t("landing.features.f2Desc") },
+    { title: t("landing.features.f3Title"), desc: t("landing.features.f3Desc") },
+    { title: t("landing.features.f4Title"), desc: t("landing.features.f4Desc") },
+  ];
+
+  const audience = [
+    { emoji: "🎨", text: t("landing.audience.a1") },
+    { emoji: "📢", text: t("landing.audience.a2") },
+    { emoji: "🏢", text: t("landing.audience.a3") },
+    { emoji: "💻", text: t("landing.audience.a4") },
+    { emoji: "🛠", text: t("landing.audience.a5") },
+    { emoji: "🚀", text: t("landing.audience.a6") },
+  ];
+
+  const plans = [
+    {
+      name: t("landing.plans.free"),
+      price: t("landing.plans.freePrice"),
+      tagline: t("landing.plans.freeTagline"),
+      features: [t("landing.plans.freeF1"), t("landing.plans.freeF2"), t("landing.plans.freeF3"), t("landing.plans.freeF4")],
+      cta: t("landing.plans.ctaFree"),
+      href: "/register",
+      highlight: false,
+    },
+    {
+      name: t("landing.plans.basic"),
+      price: t("landing.plans.basicPrice"),
+      tagline: t("landing.plans.basicTagline"),
+      features: [t("landing.plans.basicF1"), t("landing.plans.basicF2"), t("landing.plans.basicF3"), t("landing.plans.basicF4")],
+      cta: t("landing.plans.ctaSubscribe"),
+      href: "/register",
+      highlight: true,
+    },
+    {
+      name: t("landing.plans.pro"),
+      price: t("landing.plans.proPrice"),
+      tagline: t("landing.plans.proTagline"),
+      features: [t("landing.plans.proF1"), t("landing.plans.proF2"), t("landing.plans.proF3"), t("landing.plans.proF4")],
+      cta: t("landing.plans.ctaSubscribe"),
+      href: "/register",
+      highlight: false,
+    },
+  ];
+
   return (
     <div className="bg-background">
       {/* Problem Section */}
@@ -68,7 +68,7 @@ const LandingSections = () => {
           viewport={{ once: true }}
           className="text-xl sm:text-2xl md:text-3xl font-black text-center text-foreground mb-8 sm:mb-12 leading-tight"
         >
-          المشكلة مو في السوق… <span className="neon-text">المشكلة في الوصول له</span>
+          {t("landing.problemTitle1")} <span className="neon-text">{t("landing.problemTitle2")}</span>
         </motion.h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {problems.map((p, i) => (
@@ -96,9 +96,9 @@ const LandingSections = () => {
           className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground mb-2 sm:mb-3">
-            LeadHunter <span className="neon-text">يختصر عليك الطريق</span>
+            {t("landing.featuresTitle1")} <span className="neon-text">{t("landing.featuresTitle2")}</span>
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground px-2">بدل البحث العشوائي، النظام يجيب لك بزنسات جاهزة تحتاج خدماتك الآن</p>
+          <p className="text-sm sm:text-base text-muted-foreground px-2">{t("landing.featuresSubtitle")}</p>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {features.map((f, i) => (
@@ -125,7 +125,7 @@ const LandingSections = () => {
           viewport={{ once: true }}
           className="text-xl sm:text-2xl md:text-3xl font-black text-center text-foreground mb-6 sm:mb-10"
         >
-          لمن هذا المنتج؟
+          {t("landing.audienceTitle")}
         </motion.h2>
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {audience.map((a, i) => (
@@ -153,10 +153,10 @@ const LandingSections = () => {
           className="glass-card rounded-2xl neon-border p-5 sm:p-8"
         >
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground mb-2 sm:mb-3">
-            مو مجرد ليدز… <span className="neon-text">قرار جاهز</span>
+            {t("landing.valueTitle1")} <span className="neon-text">{t("landing.valueTitle2")}</span>
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground">
-            LeadHunter ما يعطيك بيانات فقط — يعطيك أفضل الفرص عشان تبدأ البيع مباشرة
+            {t("landing.valueDesc")}
           </p>
         </motion.div>
       </section>
@@ -169,7 +169,7 @@ const LandingSections = () => {
           viewport={{ once: true }}
           className="text-xl sm:text-2xl md:text-3xl font-black text-center text-foreground mb-6 sm:mb-10"
         >
-          خطط بسيطة تناسبك
+          {t("landing.pricingTitle")}
         </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
           {plans.map((plan, i) => (
@@ -192,31 +192,16 @@ const LandingSections = () => {
                   </li>
                 ))}
               </ul>
-              {(plan as any).internal ? (
-                <Link
-                  to={plan.href}
-                  className={`w-full text-center py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] block ${
-                    plan.highlight
-                      ? "bg-primary text-primary-foreground hover:brightness-110"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
-              ) : (
-                <a
-                  href={plan.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-full text-center py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] block ${
-                    plan.highlight
-                      ? "bg-primary text-primary-foreground hover:brightness-110"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  {plan.cta}
-                </a>
-              )}
+              <Link
+                to={plan.href}
+                className={`w-full text-center py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] block ${
+                  plan.highlight
+                    ? "bg-primary text-primary-foreground hover:brightness-110"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {plan.cta}
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -230,14 +215,14 @@ const LandingSections = () => {
           viewport={{ once: true }}
         >
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground mb-2 sm:mb-3">
-            ابدأ بأبسط شيء الناس تدفع عليه
+            {t("landing.footerTitle")}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">جرّب LeadHunter وابدأ تجيب عملاء اليوم</p>
+          <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">{t("landing.footerSubtitle")}</p>
           <a
             href="/register"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg hover:brightness-110 transition-all active:scale-[0.98]"
           >
-            👉 ابدأ مجانًا
+            {t("landing.footerCta")}
           </a>
         </motion.div>
       </section>
