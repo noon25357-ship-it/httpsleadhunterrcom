@@ -5,7 +5,9 @@ import {
   Search, Bookmark, Settings, LogOut, Crown,
   Zap, ClipboardList, Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import ThemeToggle from "@/components/ThemeToggle";
+import LanguageToggle from "@/components/LanguageToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import SearchPanel from "@/components/SearchPanel";
@@ -19,6 +21,7 @@ import { useLeadManager } from "@/hooks/useLeadManager";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"search" | "saved" | "settings">("search");
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -70,7 +73,7 @@ const Dashboard = () => {
 
     if (error || newCount === -1) {
       setLimitReached(true);
-      toast.error("انتهت تجاربك المجانية! اشترك للاستمرار");
+      toast.error(t("dashboard.trialEndedToast"));
       return;
     }
 
@@ -86,7 +89,7 @@ const Dashboard = () => {
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
     } catch (err) {
       console.error("Real search failed, falling back to mock:", err);
-      toast.error("تعذر البحث الحقيقي، جاري عرض نتائج تجريبية");
+      toast.error(t("dashboard.fallbackSearch"));
       const results = generateMockLeads(city, category);
       setLeads(results);
       setHasSearched(true);
@@ -126,7 +129,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">جاري التحميل...</div>
+        <div className="animate-pulse text-muted-foreground">{t("common.loading")}</div>
       </div>
     );
   }
@@ -134,13 +137,13 @@ const Dashboard = () => {
   const remainingSearches = profile ? profile.max_searches - profile.search_count : 0;
 
   const tabs = [
-    { id: "search" as const, label: "بحث", icon: Search },
-    { id: "saved" as const, label: "المحفوظات", icon: Bookmark },
-    { id: "settings" as const, label: "الحساب", icon: Settings },
+    { id: "search" as const, label: t("dashboard.tabSearch"), icon: Search },
+    { id: "saved" as const, label: t("dashboard.tabSaved"), icon: Bookmark },
+    { id: "settings" as const, label: t("dashboard.tabSettings"), icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       {/* Top bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -151,13 +154,14 @@ const Dashboard = () => {
             <span className="font-black text-lg text-foreground">LeadHunter</span>
           </Link>
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/my-leads"
               className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 font-bold"
             >
               <ClipboardList className="w-4 h-4" />
-              <span className="hidden sm:inline">الليدز</span>
+              <span className="hidden sm:inline">{t("dashboard.tabLeads")}</span>
               {savedLeads.length > 0 && (
                 <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {savedLeads.length}
@@ -179,11 +183,11 @@ const Dashboard = () => {
 
       <div className="pt-20 pb-24 px-4 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-black text-foreground">مرحبًا، {profile?.full_name || "مستخدم"} 👋</h1>
+          <h1 className="text-xl font-black text-foreground">{t("dashboard.welcome", { name: profile?.full_name || t("dashboard.user") })}</h1>
           <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-1.5">
             <Zap className="w-4 h-4 text-primary" />
             <span className="text-sm font-bold text-foreground">{remainingSearches}</span>
-            <span className="text-xs text-muted-foreground">بحث متبقي</span>
+            <span className="text-xs text-muted-foreground">{t("dashboard.remainingSearches")}</span>
           </div>
         </div>
 
@@ -196,13 +200,13 @@ const Dashboard = () => {
                 className="text-center py-16 bg-card border border-border rounded-2xl"
               >
                 <Crown className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h2 className="text-xl font-black text-foreground mb-2">انتهت تجاربك المجانية!</h2>
-                <p className="text-muted-foreground mb-6">اشترك الآن لعمليات بحث غير محدودة</p>
+                <h2 className="text-xl font-black text-foreground mb-2">{t("dashboard.trialEnded")}</h2>
+                <p className="text-muted-foreground mb-6">{t("dashboard.subscribePrompt")}</p>
                 <Link
                   to="/contact"
                   className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-3 rounded-xl hover:brightness-110 transition-all"
                 >
-                  اشترك الآن 🚀
+                  {t("dashboard.subscribeNow")}
                 </Link>
               </motion.div>
             ) : (
@@ -221,7 +225,7 @@ const Dashboard = () => {
                         animate={{ opacity: 1 }}
                         className="text-center text-lg font-bold text-foreground mb-6"
                       >
-                        👉 لقينا لك <span className="neon-text text-2xl">{leads.length}</span> فرصة
+                        👉 {t("search.foundLeads").replace("👉 ", "")} <span className="neon-text text-2xl">{leads.length}</span> {t("search.foundOpportunities")}
                       </motion.p>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {leads.map((lead, i) => (
@@ -248,22 +252,22 @@ const Dashboard = () => {
         {activeTab === "saved" && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-black text-foreground">الليدز المحفوظة ({savedLeads.length})</h2>
+              <h2 className="text-lg font-black text-foreground">{t("dashboard.savedLeadsTitle", { count: savedLeads.length })}</h2>
               {savedLeads.length > 0 && (
                 <Link
                   to="/my-leads"
                   className="text-sm text-primary hover:underline font-bold flex items-center gap-1"
                 >
                   <ClipboardList className="w-4 h-4" />
-                  إدارة الليدز
+                  {t("dashboard.manageLeads")}
                 </Link>
               )}
             </div>
             {savedLeads.length === 0 ? (
               <div className="text-center py-16 bg-card border border-border rounded-2xl">
                 <Bookmark className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-foreground font-bold">لا توجد ليدز محفوظة</p>
-                <p className="text-sm text-muted-foreground mt-1">ابحث واحفظ أفضل الفرص هنا</p>
+                <p className="text-foreground font-bold">{t("dashboard.noSavedLeads")}</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("dashboard.searchAndSave")}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -302,29 +306,29 @@ const Dashboard = () => {
 
         {activeTab === "settings" && (
           <div className="max-w-md">
-            <h2 className="text-lg font-black text-foreground mb-4">إعدادات الحساب</h2>
+            <h2 className="text-lg font-black text-foreground mb-4">{t("dashboard.settingsTitle")}</h2>
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
               <div>
-                <label className="text-sm text-muted-foreground">الاسم</label>
+                <label className="text-sm text-muted-foreground">{t("dashboard.name")}</label>
                 <p className="text-foreground font-bold">{profile?.full_name || "—"}</p>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">البريد</label>
+                <label className="text-sm text-muted-foreground">{t("dashboard.emailLabel")}</label>
                 <p className="text-foreground font-bold" dir="ltr">{user?.email}</p>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">عمليات البحث المستخدمة</label>
+                <label className="text-sm text-muted-foreground">{t("dashboard.usedSearches")}</label>
                 <p className="text-foreground font-bold">{profile?.search_count} / {profile?.max_searches}</p>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">الباقة</label>
-                <p className="text-foreground font-bold">مجانية</p>
+                <label className="text-sm text-muted-foreground">{t("dashboard.plan")}</label>
+                <p className="text-foreground font-bold">{t("dashboard.planFree")}</p>
               </div>
               <Link
                 to="/contact"
                 className="block w-full text-center bg-primary text-primary-foreground font-bold py-3 rounded-xl hover:brightness-110 transition-all"
               >
-                ترقية الباقة 🚀
+                {t("dashboard.upgrade")}
               </Link>
             </div>
           </div>
@@ -351,7 +355,7 @@ const Dashboard = () => {
             className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ClipboardList className="w-5 h-5" />
-            <span className="text-xs font-medium">الليدز</span>
+            <span className="text-xs font-medium">{t("dashboard.tabLeads")}</span>
           </Link>
         </div>
       </div>
