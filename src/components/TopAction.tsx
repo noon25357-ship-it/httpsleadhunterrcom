@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, MessageCircle, Copy, X, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Lead } from "@/lib/leadData";
 import { getDefaultMessage } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
@@ -11,6 +12,7 @@ interface TopActionProps {
 }
 
 const TopAction = ({ leads }: TopActionProps) => {
+  const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const topLeads = leads.filter((l) => l.label === "hot").slice(0, 5);
@@ -21,14 +23,13 @@ const TopAction = ({ leads }: TopActionProps) => {
   const copyMessage = () => {
     navigator.clipboard.writeText(message);
     setCopied(true);
-    toast.success("تم نسخ الرسالة!");
+    toast.success(t("leadCard.messageCopied"));
     trackEvent("copy_message_top5");
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <>
-      {/* Sticky bar */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -46,17 +47,16 @@ const TopAction = ({ leads }: TopActionProps) => {
               <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div className="text-right min-w-0">
-              <h3 className="font-bold text-sm sm:text-base text-foreground truncate">👉 تواصل مع أفضل {topLeads.length} الآن ⚡</h3>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">أرقام + رسالة جاهزة — ابدأ خلال ثواني</p>
+              <h3 className="font-bold text-sm sm:text-base text-foreground truncate">{t("topAction.title", { count: topLeads.length })}</h3>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{t("topAction.subtitle")}</p>
             </div>
           </div>
           <div className="bg-primary text-primary-foreground px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm shrink-0 group-hover:shadow-[0_0_15px_hsl(145_80%_42%/0.4)] transition-shadow">
-            ابدأ
+            {t("topAction.start")}
           </div>
         </button>
       </motion.div>
 
-      {/* Modal - bottom sheet on mobile */}
       <AnimatePresence>
         {showModal && (
           <motion.div
@@ -74,7 +74,7 @@ const TopAction = ({ leads }: TopActionProps) => {
               className="w-full sm:max-w-md glass-card rounded-t-2xl sm:rounded-2xl neon-border overflow-hidden max-h-[85vh]"
             >
               <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
-                <h3 className="font-bold text-base sm:text-lg text-foreground">أفضل {topLeads.length} فرص الآن 🔥</h3>
+                <h3 className="font-bold text-base sm:text-lg text-foreground">{t("topAction.modalTitle", { count: topLeads.length })}</h3>
                 <button onClick={() => setShowModal(false)} className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
@@ -106,7 +106,7 @@ const TopAction = ({ leads }: TopActionProps) => {
                   className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl border border-border text-xs sm:text-sm font-medium text-foreground hover:bg-secondary transition-colors active:scale-[0.98]"
                 >
                   {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
-                  📋 نسخ رسالة واحدة للجميع
+                  {t("topAction.copyForAll")}
                 </button>
               </div>
             </motion.div>

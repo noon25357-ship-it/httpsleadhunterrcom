@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cities, categories } from "@/lib/leadData";
 
 interface SearchPanelProps {
@@ -9,6 +10,7 @@ interface SearchPanelProps {
 }
 
 const SearchPanel = ({ onSearch, isSearching }: SearchPanelProps) => {
+  const { t } = useTranslation();
   const [city, setCity] = useState(cities[0]);
   const [category, setCategory] = useState(categories[0]);
 
@@ -23,7 +25,7 @@ const SearchPanel = ({ onSearch, isSearching }: SearchPanelProps) => {
       <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 neon-border">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-5">
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 sm:mb-2">المدينة</label>
+            <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 sm:mb-2">{t("search.city")}</label>
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
@@ -33,7 +35,7 @@ const SearchPanel = ({ onSearch, isSearching }: SearchPanelProps) => {
             </select>
           </div>
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 sm:mb-2">التصنيف</label>
+            <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 sm:mb-2">{t("search.category")}</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -49,7 +51,7 @@ const SearchPanel = ({ onSearch, isSearching }: SearchPanelProps) => {
           className="w-full flex items-center justify-center gap-2 sm:gap-3 bg-primary text-primary-foreground font-bold py-3 sm:py-3.5 rounded-xl text-sm sm:text-base hover:brightness-110 transition-all disabled:opacity-50 active:scale-[0.98]"
         >
           <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-          {isSearching ? "جاري البحث..." : "👉 ابدأ البحث الآن"}
+          {isSearching ? t("search.searching") : t("search.startSearch")}
         </button>
       </div>
     </motion.div>

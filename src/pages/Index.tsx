@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -37,6 +38,7 @@ const CountUp = ({ target }: { target: number }) => {
 
 const Index = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -96,9 +98,9 @@ const Index = () => {
                 className="text-center mb-8"
               >
                 <p className="text-lg text-foreground font-bold">
-                  👉 لقينا لك <span className="neon-text text-2xl"><CountUp target={leads.length} /></span> فرص جاهزة للبيع الآن
+                  {t("search.foundLeads")} <span className="neon-text text-2xl"><CountUp target={leads.length} /></span> {t("search.opportunities")}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">ابدأ بأفضلها (Hot) أولًا</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("search.startWithBest")}</p>
               </motion.div>
 
               <TopAction leads={leads} />
