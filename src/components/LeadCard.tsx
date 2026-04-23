@@ -7,6 +7,7 @@ import { getWhyReasons } from "@/lib/messageGenerator";
 import { LEAD_STATUSES, type SavedLead } from "@/lib/leadStatuses";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
+import ContactIntelligenceStrip from "@/components/contact-intelligence/ContactIntelligenceStrip";
 
 interface LeadCardProps {
   lead: Lead;
