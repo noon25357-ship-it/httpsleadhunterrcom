@@ -119,6 +119,11 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
             </div>
           )}
 
+          {/* Contact Intelligence — premium decision section */}
+          <div className="mx-5 mt-4">
+            <ContactIntelligenceCard lead={lead} />
+          </div>
+
           {/* Action buttons */}
           <div className="p-5 space-y-3">
             <a
