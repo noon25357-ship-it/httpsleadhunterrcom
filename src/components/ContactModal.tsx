@@ -120,7 +120,10 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
           )}
 
           {/* Contact Intelligence — premium decision section */}
-          <div className="mx-5 mt-4">
+          <div className="mx-5 mt-4 space-y-2">
+            <div className="text-[9px] font-black tracking-wider text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded-md w-fit">
+              CI DEBUG ACTIVE
+            </div>
             <ContactIntelligenceCard lead={lead} />
           </div>
 

@@ -174,7 +174,10 @@ const ActionLeadCard = ({
         )}
 
         {/* Row 3: Contact Intelligence (compact decision strip) */}
-        <div className="mt-2.5">
+        <div className="mt-2.5 space-y-1.5">
+          <div className="text-[9px] font-black tracking-wider text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded-md w-fit">
+            CI DEBUG ACTIVE
+          </div>
           <ContactIntelligenceStrip lead={lead} />
         </div>
 
