@@ -179,17 +179,10 @@ const ActionLeadCard = ({
           </div>
         )}
 
-        {/* Row 3: Why this lead (compact) */}
-        {topReasons.length > 0 && (
-          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-            <Lightbulb className="w-3 h-3 text-yellow-400 shrink-0" />
-            {topReasons.map((r, i) => (
-              <span key={i} className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-muted-foreground border border-border/50">
-                {r}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Row 3: Contact Intelligence (compact decision strip) */}
+        <div className="mt-2.5">
+          <ContactIntelligenceStrip lead={lead} />
+        </div>
 
         {/* Row 4: Notes & Follow-up inline */}
         {(lead.notes || lead.follow_up_date) && !editingNote && !editingFollowUp && (
