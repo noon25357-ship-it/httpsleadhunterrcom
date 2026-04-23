@@ -11,6 +11,7 @@ import {
   LEAD_STATUSES, STATUS_ORDER, getSmartAction, getUrgency, migrateStatus,
   type SavedLead, type LeadStatus, type ContactChannel,
 } from "@/lib/leadStatuses";
+import ContactIntelligenceStrip from "@/components/contact-intelligence/ContactIntelligenceStrip";
 
 interface ActionLeadCardProps {
   saved: SavedLead;
