@@ -12,6 +12,7 @@ import {
 } from "@/lib/messageGenerator";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
+import ContactIntelligenceCard from "@/components/contact-intelligence/ContactIntelligenceCard";
 
 interface ContactModalProps {
   lead: Lead | null;

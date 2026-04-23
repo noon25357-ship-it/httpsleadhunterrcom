@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   MoreHorizontal, MessageCircle, Phone, Copy, Trash2,
-  ChevronDown, Lightbulb, Zap, StickyNote, CalendarDays,
+  Zap, StickyNote, CalendarDays,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
@@ -47,13 +47,7 @@ const ActionLeadCard = ({
   const smartAction = getSmartAction(status, daysElapsed, score);
   const urgency = getUrgency(status, daysElapsed, score);
 
-  // Opportunity reasons (max 2)
-  const reasons: string[] = [];
-  if (!lead.hasWebsite) reasons.push("بدون موقع");
-  if (lead.rating >= 4) reasons.push(`تقييم ${lead.rating}⭐`);
-  if (lead.reviews > 50) reasons.push(`${lead.reviews}+ تقييم`);
-  if (lead.phone) reasons.push("رقم متوفر");
-  const topReasons = reasons.slice(0, 2);
+  // Compact reason inference now handled inside ContactIntelligenceStrip
 
   const isTerminal = status === "won" || status === "lost";
 
