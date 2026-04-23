@@ -102,6 +102,14 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         </a>
       </div>
 
+      {/* CI DEBUG ACTIVE — temporary visibility marker */}
+      <div className="text-[9px] font-black tracking-wider text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded-md w-fit">
+        CI DEBUG ACTIVE
+      </div>
+
+      {/* Contact Intelligence — compact decision strip */}
+      <ContactIntelligenceStrip lead={lead} />
+
       {reasons.length > 0 && (
         <div className="bg-primary/[0.06] border border-primary/15 rounded-lg px-3 py-2.5">
           <div className="flex items-center gap-1.5 mb-1">
