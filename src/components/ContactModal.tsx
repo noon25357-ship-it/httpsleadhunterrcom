@@ -12,6 +12,7 @@ import {
 } from "@/lib/messageGenerator";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
+import ContactIntelligenceCard from "@/components/contact-intelligence/ContactIntelligenceCard";
 
 interface ContactModalProps {
   lead: Lead | null;
@@ -117,6 +118,11 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
               </ul>
             </div>
           )}
+
+          {/* Contact Intelligence — premium decision section */}
+          <div className="mx-5 mt-4">
+            <ContactIntelligenceCard lead={lead} />
+          </div>
 
           {/* Action buttons */}
           <div className="p-5 space-y-3">

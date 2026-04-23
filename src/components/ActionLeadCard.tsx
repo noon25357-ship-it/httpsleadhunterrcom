@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   MoreHorizontal, MessageCircle, Phone, Copy, Trash2,
-  ChevronDown, Lightbulb, Zap, StickyNote, CalendarDays,
+  Zap, StickyNote, CalendarDays,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import {
   LEAD_STATUSES, STATUS_ORDER, getSmartAction, getUrgency, migrateStatus,
   type SavedLead, type LeadStatus, type ContactChannel,
 } from "@/lib/leadStatuses";
+import ContactIntelligenceStrip from "@/components/contact-intelligence/ContactIntelligenceStrip";
 
 interface ActionLeadCardProps {
   saved: SavedLead;
@@ -46,13 +47,7 @@ const ActionLeadCard = ({
   const smartAction = getSmartAction(status, daysElapsed, score);
   const urgency = getUrgency(status, daysElapsed, score);
 
-  // Opportunity reasons (max 2)
-  const reasons: string[] = [];
-  if (!lead.hasWebsite) reasons.push("بدون موقع");
-  if (lead.rating >= 4) reasons.push(`تقييم ${lead.rating}⭐`);
-  if (lead.reviews > 50) reasons.push(`${lead.reviews}+ تقييم`);
-  if (lead.phone) reasons.push("رقم متوفر");
-  const topReasons = reasons.slice(0, 2);
+  // Compact reason inference now handled inside ContactIntelligenceStrip
 
   const isTerminal = status === "won" || status === "lost";
 
@@ -178,17 +173,10 @@ const ActionLeadCard = ({
           </div>
         )}
 
-        {/* Row 3: Why this lead (compact) */}
-        {topReasons.length > 0 && (
-          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-            <Lightbulb className="w-3 h-3 text-yellow-400 shrink-0" />
-            {topReasons.map((r, i) => (
-              <span key={i} className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-muted-foreground border border-border/50">
-                {r}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Row 3: Contact Intelligence (compact decision strip) */}
+        <div className="mt-2.5">
+          <ContactIntelligenceStrip lead={lead} />
+        </div>
 
         {/* Row 4: Notes & Follow-up inline */}
         {(lead.notes || lead.follow_up_date) && !editingNote && !editingFollowUp && (
