@@ -141,7 +141,7 @@ const IntentLeads = () => {
   const unclassifiedCount = leads.filter(l => l.intent_score === 0).length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground" dir="rtl">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
         {/* Header */}

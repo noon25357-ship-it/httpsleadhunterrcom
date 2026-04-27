@@ -130,7 +130,6 @@ const ExecutionModal = ({ saved, onClose, onExecute, onStatusChange }: Execution
           exit={{ y: 40, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
           className="w-full max-w-lg bg-card border border-border rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto"
-          dir="rtl"
         >
           {/* Header */}
           <div className="sticky top-0 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between z-10">
