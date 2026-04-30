@@ -14,7 +14,7 @@ import SearchPanel from "@/components/SearchPanel";
 import LeadCard from "@/components/LeadCard";
 import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
-import { searchRealPlaces, generateMockLeads, type Lead } from "@/lib/leadData";
+import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
