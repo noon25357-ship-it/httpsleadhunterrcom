@@ -12,6 +12,29 @@ export interface Lead {
   score: number;
   label: 'hot' | 'warm' | 'cold';
   mapsUrl: string;
+  address?: string;
+  websiteUrl?: string;
+  insights?: string[];
+  socialPresence?: { instagram?: boolean; whatsapp?: boolean; tiktok?: boolean };
+  isChain?: boolean;
+  goldenOpportunity?: boolean;
+}
+
+export interface SearchFilters {
+  excludeChains?: boolean;
+  onlyNoWebsite?: boolean;
+  minRating?: number;
+  minReviews?: number;
+  maxResults?: number;
+  deepSearch?: boolean;
+}
+
+export interface SearchStats {
+  total: number;
+  golden: number;
+  noWebsite: number;
+  chains: number;
+  hot: number;
 }
 
 export function calculateScore(lead: Omit<Lead, 'score' | 'label'>): { score: number; label: 'hot' | 'warm' | 'cold' } {
