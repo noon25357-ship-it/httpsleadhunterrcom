@@ -226,10 +226,34 @@ const Dashboard = () => {
                       <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-center text-lg font-bold text-foreground mb-6"
+                        className="text-center text-lg font-bold text-foreground mb-3"
                       >
                         👉 {t("search.foundLeads").replace("👉 ", "")} <span className="neon-text text-2xl">{leads.length}</span> {t("search.foundOpportunities")}
                       </motion.p>
+
+                      {searchStats && leads.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex flex-wrap items-center justify-center gap-2 mb-6"
+                        >
+                          {searchStats.golden > 0 && (
+                            <span className="bg-primary/15 text-primary border border-primary/30 px-3 py-1 rounded-full text-xs font-bold">
+                              💎 {searchStats.golden} فرصة ذهبية
+                            </span>
+                          )}
+                          {searchStats.noWebsite > 0 && (
+                            <span className="bg-secondary text-foreground border border-border px-3 py-1 rounded-full text-xs font-bold">
+                              🌐 {searchStats.noWebsite} بدون موقع
+                            </span>
+                          )}
+                          {searchStats.hot > 0 && (
+                            <span className="bg-orange-500/15 text-orange-500 border border-orange-500/30 px-3 py-1 rounded-full text-xs font-bold">
+                              🔥 {searchStats.hot} ساخن
+                            </span>
+                          )}
+                        </motion.div>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {leads.map((lead, i) => (
                           <LeadCard
