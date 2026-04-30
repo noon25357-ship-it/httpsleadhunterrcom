@@ -81,7 +81,11 @@ export function generateMockLeads(city: string, category: string): Lead[] {
   }).sort((a, b) => b.score - a.score);
 }
 
-export async function searchRealPlaces(city: string, category: string): Promise<Lead[]> {
+export async function searchRealPlaces(
+  city: string,
+  category: string,
+  filters: SearchFilters = {}
+): Promise<{ leads: Lead[]; stats?: SearchStats }> {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -91,7 +95,7 @@ export async function searchRealPlaces(city: string, category: string): Promise<
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${supabaseKey}`,
     },
-    body: JSON.stringify({ city, category }),
+    body: JSON.stringify({ city, category, filters }),
   });
 
   if (!resp.ok) {
@@ -100,7 +104,7 @@ export async function searchRealPlaces(city: string, category: string): Promise<
   }
 
   const data = await resp.json();
-  return data.leads as Lead[];
+  return { leads: data.leads as Lead[], stats: data.stats as SearchStats | undefined };
 }
 
 export function getDefaultMessage(service: string, tone: string): string {
@@ -118,4 +122,4 @@ export function getDefaultMessage(service: string, tone: string): string {
 }
 
 export const cities = ['الرياض', 'جدة', 'الدمام', 'المدينة المنورة', 'مكة', 'الخبر', 'تبوك', 'أبها', 'القصيم', 'حائل', 'الطائف', 'خميس مشيط', 'نجران'];
-export const categories = ['مطاعم', 'كافيهات', 'صالونات', 'ورش', 'عيادات', 'عقارات'];
+export const categories = ['مطاعم', 'كافيهات', 'صالونات', 'ورش', 'عيادات', 'عقارات', 'محلات_ملابس', 'صيدليات', 'فنادق', 'مدارس', 'مكتبات', 'جيم', 'مغاسل', 'حلاقة'];
