@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, User, Mail, Phone, MessageSquare, ArrowRight } from "lucide-react";
+import { Send, User, Mail, Phone, MessageSquare, ArrowRight, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -191,6 +191,25 @@ const Contact = () => {
                 </>
               )}
             </button>
+
+            <div className="relative flex items-center gap-3 py-1">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">{t("common.or")}</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            <a
+              href={`https://wa.me/966591405049?text=${encodeURIComponent("السلام عليكم، أبغى أشترك في LeadHunter 🚀")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[hsl(145_80%_42%)] text-white font-bold py-3.5 rounded-xl text-base hover:brightness-110 transition-all flex items-center justify-center gap-2"
+            >
+              <MessageCircle className="w-4 h-4" />
+              تواصل واتساب للاشتراك
+            </a>
+            <p className="text-center text-xs text-muted-foreground" dir="ltr">
+              0591405049
+            </p>
           </form>
         </motion.div>
       </div>
