@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [limitReached, setLimitReached] = useState(false);
+  const [searchStats, setSearchStats] = useState<SearchStats | null>(null);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
@@ -64,7 +65,7 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const handleSearch = useCallback(async (city: string, category: string) => {
+  const handleSearch = useCallback(async (city: string, category: string, filters: SearchFilters = {}) => {
     if (!user) return;
 
     const { data: newCount, error } = await supabase.rpc("increment_search_count", {
@@ -79,12 +80,14 @@ const Dashboard = () => {
 
     setIsSearching(true);
     setLeads([]);
+    setSearchStats(null);
     setHasSearched(false);
-    trackEvent("search", { city, category });
+    trackEvent("search", { city, category, ...filters });
 
     try {
-      const results = await searchRealPlaces(city, category);
+      const { leads: results, stats } = await searchRealPlaces(city, category, filters);
       setLeads(results);
+      setSearchStats(stats || null);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
     } catch (err) {
@@ -97,7 +100,7 @@ const Dashboard = () => {
     } finally {
       setIsSearching(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   const handleSaveLead = async (lead: Lead) => {
     await saveLead(lead);
