@@ -14,7 +14,7 @@ import SearchPanel from "@/components/SearchPanel";
 import LeadCard from "@/components/LeadCard";
 import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
-import { searchRealPlaces, generateMockLeads, type Lead } from "@/lib/leadData";
+import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [limitReached, setLimitReached] = useState(false);
+  const [searchStats, setSearchStats] = useState<SearchStats | null>(null);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
@@ -64,7 +65,7 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const handleSearch = useCallback(async (city: string, category: string) => {
+  const handleSearch = useCallback(async (city: string, category: string, filters: SearchFilters = {}) => {
     if (!user) return;
 
     const { data: newCount, error } = await supabase.rpc("increment_search_count", {
@@ -79,12 +80,14 @@ const Dashboard = () => {
 
     setIsSearching(true);
     setLeads([]);
+    setSearchStats(null);
     setHasSearched(false);
-    trackEvent("search", { city, category });
+    trackEvent("search", { city, category, ...filters });
 
     try {
-      const results = await searchRealPlaces(city, category);
+      const { leads: results, stats } = await searchRealPlaces(city, category, filters);
       setLeads(results);
+      setSearchStats(stats || null);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
     } catch (err) {
@@ -97,7 +100,7 @@ const Dashboard = () => {
     } finally {
       setIsSearching(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   const handleSaveLead = async (lead: Lead) => {
     await saveLead(lead);
@@ -223,10 +226,34 @@ const Dashboard = () => {
                       <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-center text-lg font-bold text-foreground mb-6"
+                        className="text-center text-lg font-bold text-foreground mb-3"
                       >
                         👉 {t("search.foundLeads").replace("👉 ", "")} <span className="neon-text text-2xl">{leads.length}</span> {t("search.foundOpportunities")}
                       </motion.p>
+
+                      {searchStats && leads.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex flex-wrap items-center justify-center gap-2 mb-6"
+                        >
+                          {searchStats.golden > 0 && (
+                            <span className="bg-primary/15 text-primary border border-primary/30 px-3 py-1 rounded-full text-xs font-bold">
+                              💎 {searchStats.golden} فرصة ذهبية
+                            </span>
+                          )}
+                          {searchStats.noWebsite > 0 && (
+                            <span className="bg-secondary text-foreground border border-border px-3 py-1 rounded-full text-xs font-bold">
+                              🌐 {searchStats.noWebsite} بدون موقع
+                            </span>
+                          )}
+                          {searchStats.hot > 0 && (
+                            <span className="bg-orange-500/15 text-orange-500 border border-orange-500/30 px-3 py-1 rounded-full text-xs font-bold">
+                              🔥 {searchStats.hot} ساخن
+                            </span>
+                          )}
+                        </motion.div>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {leads.map((lead, i) => (
                           <LeadCard
