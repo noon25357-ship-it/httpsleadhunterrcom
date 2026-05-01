@@ -157,11 +157,58 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
             </div>
           )}
 
-          {/* Contact Intelligence — premium decision section */}
-          <div className="mx-5 mt-4 space-y-2">
-            <div className="text-[9px] font-black tracking-wider text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded-md w-fit">
-              CI DEBUG ACTIVE
+          {/* ── Buying Signal panel (full reasons + next best action) ── */}
+          <div className="mx-5 mt-4 bg-card border border-border rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${signalMeta.classes}`}>
+                  <span>{signalMeta.emoji}</span>
+                  <span>{signalMeta.label}</span>
+                  <span className="opacity-70">({signal.score}/100)</span>
+                </span>
+              </div>
+              <button
+                onClick={handleReanalyze}
+                disabled={isReanalyzing}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors"
+                title="إعادة تحليل الإشارات"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isReanalyzing ? "animate-spin" : ""}`} />
+                <span>إعادة تحليل الإشارات</span>
+              </button>
             </div>
+
+            {signal.reasons.length > 0 ? (
+              <div>
+                <p className="text-[11px] font-bold text-primary mb-1">سبب التصنيف</p>
+                <ul className="space-y-1">
+                  {signal.reasons.map((r) => (
+                    <li key={r} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                لا توجد بيانات كافية لتحليل إشارات الشراء، لكن يمكنك التواصل معه بناءً على معلومات الاتصال المتاحة.
+              </p>
+            )}
+
+            {signal.next_best_action && (
+              <div className="bg-secondary/50 border border-border/60 rounded-lg p-3 flex items-start gap-2">
+                <Lightbulb className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[11px] font-bold text-primary mb-0.5">الخطوة المقترحة</p>
+                  <p className="text-xs text-foreground leading-snug">{signal.next_best_action}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Contact Intelligence — premium decision section */}
+          <div className="mx-5 mt-4">
             <ContactIntelligenceCard lead={lead} />
           </div>
 
