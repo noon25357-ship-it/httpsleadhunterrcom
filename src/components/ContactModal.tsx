@@ -14,6 +14,7 @@ import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import ContactIntelligenceCard from "@/components/contact-intelligence/ContactIntelligenceCard";
 import { calculateBuyingSignal, SIGNAL_BADGE, type BuyingSignalResult } from "@/lib/buyingSignals";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactModalProps {
   lead: Lead | null;
