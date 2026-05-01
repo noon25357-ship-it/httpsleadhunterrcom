@@ -40,9 +40,43 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
 
   const message = editableMessage ?? smartMessage;
 
+  // Buying signal: prefer persisted, then override, then compute
+  const signal: BuyingSignalResult = useMemo(() => {
+    if (signalOverride) return signalOverride;
+    if (lead?.buying_signal_status && typeof lead.buying_signal_score === "number") {
+      return {
+        score: lead.buying_signal_score,
+        status: lead.buying_signal_status,
+        reasons: lead.buying_signal_reasons ?? [],
+        next_best_action: lead.next_best_action ?? "",
+      };
+    }
+    return calculateBuyingSignal(lead ?? { hasWebsite: false, rating: 0, reviews: 0, phone: "" }, {
+      reviewTexts: lead?.reviewTexts,
+    });
+  }, [lead, signalOverride]);
+
   if (!lead) return null;
 
   const whatsappUrl = `https://wa.me/966${lead.phone.slice(1)}?text=${encodeURIComponent(message)}`;
+  const signalMeta = SIGNAL_BADGE[signal.status];
+
+  const handleReanalyze = async () => {
+    setIsReanalyzing(true);
+    try {
+      const result = calculateBuyingSignal(lead, { reviewTexts: lead.reviewTexts });
+      setSignalOverride(result);
+      // Try to persist if this lead is saved (best effort, silently ignored if not)
+      await supabase.functions.invoke("calculate-buying-signals", {
+        body: { lead_id: undefined }, // server reads all user leads when no id; harmless if not saved
+      }).catch(() => {});
+      toast.success("تم تحديث إشارات الشراء");
+    } catch (e) {
+      toast.error("تعذر تحليل الإشارات الآن. حاول مرة أخرى.");
+    } finally {
+      setIsReanalyzing(false);
+    }
+  };
 
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
