@@ -45,6 +45,8 @@ const Dashboard = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [limitReached, setLimitReached] = useState(false);
   const [searchStats, setSearchStats] = useState<SearchStats | null>(null);
+  const [signalFilter, setSignalFilter] = useState<SignalFilter>("all");
+  const [sortBySignal, setSortBySignal] = useState(true);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
