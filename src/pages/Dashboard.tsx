@@ -321,8 +321,51 @@ const Dashboard = () => {
                           )}
                         </motion.div>
                       )}
+
+                      {/* ── Buying Signal stats cards ── */}
+                      {leads.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
+                          <StatCard icon={<Flame className="w-4 h-4" />} label="Hot" value={signalStats.hot} tone="hot" />
+                          <StatCard icon={<Zap className="w-4 h-4" />} label="Warm" value={signalStats.warm} tone="warm" />
+                          <StatCard icon={<Snowflake className="w-4 h-4" />} label="Cold" value={signalStats.cold} tone="cold" />
+                          <StatCard label="متوسط الإشارة" value={signalStats.avg} tone="neutral" />
+                          <StatCard label="أفضل قطاع" value={signalStats.topCategory ?? "—"} tone="neutral" />
+                          <StatCard label="أفضل مدينة" value={signalStats.topCity ?? "—"} tone="neutral" />
+                        </div>
+                      )}
+
+                      {/* ── Signal filter chips + sort toggle ── */}
+                      {leads.length > 0 && (
+                        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+                          {SIGNAL_FILTERS.map((f) => (
+                            <button
+                              key={f.id}
+                              onClick={() => setSignalFilter(f.id)}
+                              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                signalFilter === f.id
+                                  ? "bg-primary/15 text-primary border-primary/30"
+                                  : "bg-secondary text-secondary-foreground border-border"
+                              }`}
+                            >
+                              {f.label}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => setSortBySignal((v) => !v)}
+                            className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                              sortBySignal
+                                ? "bg-primary/15 text-primary border-primary/30"
+                                : "bg-secondary text-secondary-foreground border-border"
+                            }`}
+                            title="ترتيب حسب درجة الإشارة"
+                          >
+                            ↕ ترتيب حسب الإشارة
+                          </button>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {leads.map((lead, i) => (
+                        {visibleLeads.map((lead, i) => (
                           <LeadCard
                             key={lead.id}
                             lead={lead}
@@ -334,6 +377,11 @@ const Dashboard = () => {
                             savedStatus={getLeadStatus(lead.id)}
                           />
                         ))}
+                        {visibleLeads.length === 0 && (
+                          <div className="col-span-full text-center py-10 text-muted-foreground text-sm">
+                            لا توجد فرص تطابق الفلاتر المحددة
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
