@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, MessageCircle, PhoneCall, Copy, Check,
   Bookmark, CheckCircle2, Lightbulb, MapPin, Star,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, RefreshCw,
 } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
 import {
@@ -13,6 +13,7 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import ContactIntelligenceCard from "@/components/contact-intelligence/ContactIntelligenceCard";
+import { calculateBuyingSignal, SIGNAL_BADGE, type BuyingSignalResult } from "@/lib/buyingSignals";
 
 interface ContactModalProps {
   lead: Lead | null;
