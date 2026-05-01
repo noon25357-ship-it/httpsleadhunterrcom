@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Search, Bookmark, Settings, LogOut, Crown,
-  Zap, ClipboardList, Trash2,
+  Zap, ClipboardList, Trash2, Flame, Snowflake,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -15,9 +15,20 @@ import LeadCard from "@/components/LeadCard";
 import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
+import { calculateBuyingSignal } from "@/lib/buyingSignals";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
+
+type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot";
+const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
+  { id: "all",          label: "كل الفرص" },
+  { id: "Hot",          label: "🔥 Hot فقط" },
+  { id: "Warm",         label: "⚡ Warm فقط" },
+  { id: "Cold",         label: "🧊 Cold فقط" },
+  { id: "noWebsiteHot", label: "بدون موقع + Hot" },
+  { id: "phoneHot",     label: "لديه رقم + Hot" },
+];
 
 const Dashboard = () => {
   const navigate = useNavigate();
