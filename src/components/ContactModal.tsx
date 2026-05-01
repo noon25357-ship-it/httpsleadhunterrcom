@@ -28,6 +28,8 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
   const [copied, setCopied] = useState<string | null>(null);
   const [editableMessage, setEditableMessage] = useState<string | null>(null);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [signalOverride, setSignalOverride] = useState<BuyingSignalResult | null>(null);
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
 
   const reasons = useMemo(() => (lead ? getWhyReasons(lead) : []), [lead]);
 
