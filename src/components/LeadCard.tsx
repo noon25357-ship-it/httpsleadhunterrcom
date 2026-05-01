@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, ExternalLink, Copy, Bookmark, BookmarkCheck, UserCircle2 } from "lucide-react";
+import { Star, MapPin, ExternalLink, Copy, Bookmark, BookmarkCheck, UserCircle2, Lightbulb } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Lead } from "@/lib/leadData";
 import { getDefaultMessage } from "@/lib/leadData";
@@ -13,6 +13,7 @@ import {
   CONFIDENCE_META,
   type ContactChannel,
 } from "@/lib/contactIntelligence";
+import { calculateBuyingSignal, SIGNAL_BADGE } from "@/lib/buyingSignals";
 
 interface LeadCardProps {
   lead: Lead;
