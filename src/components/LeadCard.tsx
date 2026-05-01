@@ -43,6 +43,25 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
   const ctaText = CTA_BY_CHANNEL[ci.best_contact_path.channel];
   const visibleTags = ci.reason_tags.slice(0, 2);
 
+  // ── Buying Signal ── (use precomputed values if persisted, else compute)
+  const signal = useMemo(() => {
+    if (lead.buying_signal_status && typeof lead.buying_signal_score === "number") {
+      return {
+        score: lead.buying_signal_score,
+        status: lead.buying_signal_status,
+        reasons: lead.buying_signal_reasons ?? [],
+        next_best_action: lead.next_best_action ?? "",
+      };
+    }
+    return calculateBuyingSignal(lead, {
+      pipelineStatus: savedStatus?.status,
+      contactedNoReply: savedStatus?.status === "no_response",
+      reviewTexts: lead.reviewTexts,
+    });
+  }, [lead, savedStatus]);
+  const signalMeta = SIGNAL_BADGE[signal.status];
+  const signalReasonsToShow = signal.reasons.slice(0, 2);
+
   const scoreBadge: Record<string, { text: string; shortText: string; classes: string }> = {
     hot: { text: t("leadCard.hot"), shortText: t("leadCard.hotShort"), classes: "bg-primary/15 text-primary neon-border" },
     warm: { text: t("leadCard.warm"), shortText: t("leadCard.warmShort"), classes: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30" },
