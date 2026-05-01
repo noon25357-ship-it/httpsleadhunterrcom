@@ -211,34 +211,49 @@ export type Database = {
       }
       saved_leads: {
         Row: {
+          buying_signal_reasons: Json
+          buying_signal_score: number
+          buying_signal_status: string
           contact_channel: string | null
           created_at: string
           id: string
           last_action: string | null
           last_action_at: string | null
+          last_signal_calculated_at: string | null
           lead_data: Json
+          next_best_action: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          buying_signal_reasons?: Json
+          buying_signal_score?: number
+          buying_signal_status?: string
           contact_channel?: string | null
           created_at?: string
           id?: string
           last_action?: string | null
           last_action_at?: string | null
+          last_signal_calculated_at?: string | null
           lead_data: Json
+          next_best_action?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          buying_signal_reasons?: Json
+          buying_signal_score?: number
+          buying_signal_status?: string
           contact_channel?: string | null
           created_at?: string
           id?: string
           last_action?: string | null
           last_action_at?: string | null
+          last_signal_calculated_at?: string | null
           lead_data?: Json
+          next_best_action?: string | null
           status?: string
           updated_at?: string
           user_id?: string

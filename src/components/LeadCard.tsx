@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, ExternalLink, Copy, Bookmark, BookmarkCheck, UserCircle2 } from "lucide-react";
+import { Star, MapPin, ExternalLink, Copy, Bookmark, BookmarkCheck, UserCircle2, Lightbulb } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Lead } from "@/lib/leadData";
 import { getDefaultMessage } from "@/lib/leadData";
@@ -13,6 +13,7 @@ import {
   CONFIDENCE_META,
   type ContactChannel,
 } from "@/lib/contactIntelligence";
+import { calculateBuyingSignal, SIGNAL_BADGE } from "@/lib/buyingSignals";
 
 interface LeadCardProps {
   lead: Lead;
@@ -41,6 +42,25 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
   const confMeta = CONFIDENCE_META[ci.best_contact_path.confidence];
   const ctaText = CTA_BY_CHANNEL[ci.best_contact_path.channel];
   const visibleTags = ci.reason_tags.slice(0, 2);
+
+  // ── Buying Signal ── (use precomputed values if persisted, else compute)
+  const signal = useMemo(() => {
+    if (lead.buying_signal_status && typeof lead.buying_signal_score === "number") {
+      return {
+        score: lead.buying_signal_score,
+        status: lead.buying_signal_status,
+        reasons: lead.buying_signal_reasons ?? [],
+        next_best_action: lead.next_best_action ?? "",
+      };
+    }
+    return calculateBuyingSignal(lead, {
+      pipelineStatus: savedStatus?.status,
+      contactedNoReply: savedStatus?.status === "no_response",
+      reviewTexts: lead.reviewTexts,
+    });
+  }, [lead, savedStatus]);
+  const signalMeta = SIGNAL_BADGE[signal.status];
+  const signalReasonsToShow = signal.reasons.slice(0, 2);
 
   const scoreBadge: Record<string, { text: string; shortText: string; classes: string }> = {
     hot: { text: t("leadCard.hot"), shortText: t("leadCard.hotShort"), classes: "bg-primary/15 text-primary neon-border" },
@@ -102,6 +122,17 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${confMeta.classes}`}>
           {ci.best_contact_path.confidence.toUpperCase()}
         </span>
+
+        {/* ── Buying Signal badge ── */}
+        <span
+          className={`ml-auto inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md ${signalMeta.classes}`}
+          title={`${signalMeta.label} — ${signal.score}/100`}
+        >
+          <span>{signalMeta.emoji}</span>
+          <span className="hidden sm:inline">{signalMeta.label}</span>
+          <span className="sm:hidden">{signalMeta.shortLabel}</span>
+          <span className="opacity-70">({signal.score})</span>
+        </span>
       </div>
 
       {/* ── Identity ── */}
@@ -157,9 +188,20 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         <span>{ctaText}</span>
       </button>
 
-      {/* ── Subtle insight chips (max 2) + quick copy ── */}
+      {/* ── الخطوة المقترحة (Next Best Action) ── */}
+      {signal.next_best_action && (
+        <div className="bg-secondary/40 border border-border/60 rounded-lg px-3 py-2 flex items-start gap-2">
+          <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold text-primary mb-0.5">الخطوة المقترحة</p>
+            <p className="text-[11px] sm:text-xs text-foreground leading-snug">{signal.next_best_action}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Subtle insight chips (max 2 buying-signal reasons) + quick copy ── */}
       <div className="flex items-center gap-2 flex-wrap">
-        {visibleTags.map((tag) => (
+        {(signalReasonsToShow.length > 0 ? signalReasonsToShow : visibleTags).map((tag) => (
           <span
             key={tag}
             className="text-[10px] sm:text-[11px] text-muted-foreground/80 bg-transparent border border-border/50 px-2 py-0.5 rounded-md"

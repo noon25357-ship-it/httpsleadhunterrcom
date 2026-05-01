@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Search, Bookmark, Settings, LogOut, Crown,
-  Zap, ClipboardList, Trash2,
+  Zap, ClipboardList, Trash2, Flame, Snowflake,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -15,9 +15,20 @@ import LeadCard from "@/components/LeadCard";
 import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
+import { calculateBuyingSignal } from "@/lib/buyingSignals";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
+
+type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot";
+const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
+  { id: "all",          label: "كل الفرص" },
+  { id: "Hot",          label: "🔥 Hot فقط" },
+  { id: "Warm",         label: "⚡ Warm فقط" },
+  { id: "Cold",         label: "🧊 Cold فقط" },
+  { id: "noWebsiteHot", label: "بدون موقع + Hot" },
+  { id: "phoneHot",     label: "لديه رقم + Hot" },
+];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,6 +45,8 @@ const Dashboard = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [limitReached, setLimitReached] = useState(false);
   const [searchStats, setSearchStats] = useState<SearchStats | null>(null);
+  const [signalFilter, setSignalFilter] = useState<SignalFilter>("all");
+  const [sortBySignal, setSortBySignal] = useState(true);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
@@ -86,14 +99,15 @@ const Dashboard = () => {
 
     try {
       const { leads: results, stats } = await searchRealPlaces(city, category, filters);
-      setLeads(results);
+      const enriched = enrichWithSignals(results);
+      setLeads(enriched);
       setSearchStats(stats || null);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
     } catch (err) {
       console.error("Real search failed, falling back to mock:", err);
       toast.error(t("dashboard.fallbackSearch"));
-      const results = generateMockLeads(city, category);
+      const results = enrichWithSignals(generateMockLeads(city, category));
       setLeads(results);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
@@ -101,6 +115,59 @@ const Dashboard = () => {
       setIsSearching(false);
     }
   }, [user, t]);
+
+  // Compute buying-signal fields for raw leads (used right after search).
+  function enrichWithSignals(arr: Lead[]): Lead[] {
+    return arr.map((l) => {
+      const s = calculateBuyingSignal(l, { reviewTexts: l.reviewTexts });
+      return {
+        ...l,
+        buying_signal_score: s.score,
+        buying_signal_status: s.status,
+        buying_signal_reasons: s.reasons,
+        next_best_action: s.next_best_action,
+      };
+    });
+  }
+
+  // ── Filter + sort visible leads by buying signal ──
+  const visibleLeads = useMemo(() => {
+    let arr = [...leads];
+    switch (signalFilter) {
+      case "Hot":  arr = arr.filter(l => l.buying_signal_status === "Hot"); break;
+      case "Warm": arr = arr.filter(l => l.buying_signal_status === "Warm"); break;
+      case "Cold": arr = arr.filter(l => l.buying_signal_status === "Cold"); break;
+      case "noWebsiteHot":
+        arr = arr.filter(l => !l.hasWebsite && l.buying_signal_status === "Hot"); break;
+      case "phoneHot":
+        arr = arr.filter(l => !!l.phone && l.buying_signal_status === "Hot"); break;
+    }
+    if (sortBySignal) {
+      arr.sort((a, b) => (b.buying_signal_score ?? 0) - (a.buying_signal_score ?? 0));
+    }
+    return arr;
+  }, [leads, signalFilter, sortBySignal]);
+
+  // ── Stats over current results ──
+  const signalStats = useMemo(() => {
+    const hot  = leads.filter(l => l.buying_signal_status === "Hot").length;
+    const warm = leads.filter(l => l.buying_signal_status === "Warm").length;
+    const cold = leads.filter(l => l.buying_signal_status === "Cold").length;
+    const sum  = leads.reduce((acc, l) => acc + (l.buying_signal_score ?? 0), 0);
+    const avg  = leads.length ? Math.round(sum / leads.length) : 0;
+    const byCategory: Record<string, number> = {};
+    const byCity: Record<string, number> = {};
+    for (const l of leads) {
+      if (l.buying_signal_status === "Hot") {
+        byCategory[l.category] = (byCategory[l.category] ?? 0) + 1;
+        byCity[l.city]         = (byCity[l.city] ?? 0) + 1;
+      }
+    }
+    const topCategory = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    const topCity     = Object.entries(byCity).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    return { hot, warm, cold, avg, topCategory, topCity };
+  }, [leads]);
+
 
   const handleSaveLead = async (lead: Lead) => {
     await saveLead(lead);
@@ -254,8 +321,51 @@ const Dashboard = () => {
                           )}
                         </motion.div>
                       )}
+
+                      {/* ── Buying Signal stats cards ── */}
+                      {leads.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
+                          <StatCard icon={<Flame className="w-4 h-4" />} label="Hot" value={signalStats.hot} tone="hot" />
+                          <StatCard icon={<Zap className="w-4 h-4" />} label="Warm" value={signalStats.warm} tone="warm" />
+                          <StatCard icon={<Snowflake className="w-4 h-4" />} label="Cold" value={signalStats.cold} tone="cold" />
+                          <StatCard label="متوسط الإشارة" value={signalStats.avg} tone="neutral" />
+                          <StatCard label="أفضل قطاع" value={signalStats.topCategory ?? "—"} tone="neutral" />
+                          <StatCard label="أفضل مدينة" value={signalStats.topCity ?? "—"} tone="neutral" />
+                        </div>
+                      )}
+
+                      {/* ── Signal filter chips + sort toggle ── */}
+                      {leads.length > 0 && (
+                        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+                          {SIGNAL_FILTERS.map((f) => (
+                            <button
+                              key={f.id}
+                              onClick={() => setSignalFilter(f.id)}
+                              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                signalFilter === f.id
+                                  ? "bg-primary/15 text-primary border-primary/30"
+                                  : "bg-secondary text-secondary-foreground border-border"
+                              }`}
+                            >
+                              {f.label}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => setSortBySignal((v) => !v)}
+                            className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                              sortBySignal
+                                ? "bg-primary/15 text-primary border-primary/30"
+                                : "bg-secondary text-secondary-foreground border-border"
+                            }`}
+                            title="ترتيب حسب درجة الإشارة"
+                          >
+                            ↕ ترتيب حسب الإشارة
+                          </button>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {leads.map((lead, i) => (
+                        {visibleLeads.map((lead, i) => (
                           <LeadCard
                             key={lead.id}
                             lead={lead}
@@ -267,6 +377,11 @@ const Dashboard = () => {
                             savedStatus={getLeadStatus(lead.id)}
                           />
                         ))}
+                        {visibleLeads.length === 0 && (
+                          <div className="col-span-full text-center py-10 text-muted-foreground text-sm">
+                            لا توجد فرص تطابق الفلاتر المحددة
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -406,5 +521,24 @@ const Dashboard = () => {
     </div>
   );
 };
+
+const TONE_CLASSES: Record<string, string> = {
+  hot:     "bg-primary/10 border-primary/30 text-primary",
+  warm:    "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",
+  cold:    "bg-muted border-border text-muted-foreground",
+  neutral: "bg-card border-border text-foreground",
+};
+
+const StatCard = ({
+  icon, label, value, tone = "neutral",
+}: { icon?: React.ReactNode; label: string; value: number | string; tone?: keyof typeof TONE_CLASSES }) => (
+  <div className={`rounded-xl border px-3 py-2 flex items-center gap-2 ${TONE_CLASSES[tone]}`}>
+    {icon && <span className="shrink-0">{icon}</span>}
+    <div className="min-w-0">
+      <p className="text-[10px] font-bold opacity-70 truncate">{label}</p>
+      <p className="text-sm font-black truncate">{value}</p>
+    </div>
+  </div>
+);
 
 export default Dashboard;

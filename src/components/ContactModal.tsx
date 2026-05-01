@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, MessageCircle, PhoneCall, Copy, Check,
   Bookmark, CheckCircle2, Lightbulb, MapPin, Star,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, RefreshCw,
 } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
 import {
@@ -13,6 +13,8 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import ContactIntelligenceCard from "@/components/contact-intelligence/ContactIntelligenceCard";
+import { calculateBuyingSignal, SIGNAL_BADGE, type BuyingSignalResult } from "@/lib/buyingSignals";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactModalProps {
   lead: Lead | null;
@@ -27,6 +29,8 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
   const [copied, setCopied] = useState<string | null>(null);
   const [editableMessage, setEditableMessage] = useState<string | null>(null);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [signalOverride, setSignalOverride] = useState<BuyingSignalResult | null>(null);
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
 
   const reasons = useMemo(() => (lead ? getWhyReasons(lead) : []), [lead]);
 
@@ -37,9 +41,43 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
 
   const message = editableMessage ?? smartMessage;
 
+  // Buying signal: prefer persisted, then override, then compute
+  const signal: BuyingSignalResult = useMemo(() => {
+    if (signalOverride) return signalOverride;
+    if (lead?.buying_signal_status && typeof lead.buying_signal_score === "number") {
+      return {
+        score: lead.buying_signal_score,
+        status: lead.buying_signal_status,
+        reasons: lead.buying_signal_reasons ?? [],
+        next_best_action: lead.next_best_action ?? "",
+      };
+    }
+    return calculateBuyingSignal(lead ?? { hasWebsite: false, rating: 0, reviews: 0, phone: "" }, {
+      reviewTexts: lead?.reviewTexts,
+    });
+  }, [lead, signalOverride]);
+
   if (!lead) return null;
 
   const whatsappUrl = `https://wa.me/966${lead.phone.slice(1)}?text=${encodeURIComponent(message)}`;
+  const signalMeta = SIGNAL_BADGE[signal.status];
+
+  const handleReanalyze = async () => {
+    setIsReanalyzing(true);
+    try {
+      const result = calculateBuyingSignal(lead, { reviewTexts: lead.reviewTexts });
+      setSignalOverride(result);
+      // Try to persist if this lead is saved (best effort, silently ignored if not)
+      await supabase.functions.invoke("calculate-buying-signals", {
+        body: { lead_id: undefined }, // server reads all user leads when no id; harmless if not saved
+      }).catch(() => {});
+      toast.success("تم تحديث إشارات الشراء");
+    } catch (e) {
+      toast.error("تعذر تحليل الإشارات الآن. حاول مرة أخرى.");
+    } finally {
+      setIsReanalyzing(false);
+    }
+  };
 
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -119,11 +157,58 @@ const ContactModal = ({ lead, onClose, onSave, onMarkContacted }: ContactModalPr
             </div>
           )}
 
-          {/* Contact Intelligence — premium decision section */}
-          <div className="mx-5 mt-4 space-y-2">
-            <div className="text-[9px] font-black tracking-wider text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded-md w-fit">
-              CI DEBUG ACTIVE
+          {/* ── Buying Signal panel (full reasons + next best action) ── */}
+          <div className="mx-5 mt-4 bg-card border border-border rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${signalMeta.classes}`}>
+                  <span>{signalMeta.emoji}</span>
+                  <span>{signalMeta.label}</span>
+                  <span className="opacity-70">({signal.score}/100)</span>
+                </span>
+              </div>
+              <button
+                onClick={handleReanalyze}
+                disabled={isReanalyzing}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors"
+                title="إعادة تحليل الإشارات"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isReanalyzing ? "animate-spin" : ""}`} />
+                <span>إعادة تحليل الإشارات</span>
+              </button>
             </div>
+
+            {signal.reasons.length > 0 ? (
+              <div>
+                <p className="text-[11px] font-bold text-primary mb-1">سبب التصنيف</p>
+                <ul className="space-y-1">
+                  {signal.reasons.map((r) => (
+                    <li key={r} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                لا توجد بيانات كافية لتحليل إشارات الشراء، لكن يمكنك التواصل معه بناءً على معلومات الاتصال المتاحة.
+              </p>
+            )}
+
+            {signal.next_best_action && (
+              <div className="bg-secondary/50 border border-border/60 rounded-lg p-3 flex items-start gap-2">
+                <Lightbulb className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[11px] font-bold text-primary mb-0.5">الخطوة المقترحة</p>
+                  <p className="text-xs text-foreground leading-snug">{signal.next_best_action}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Contact Intelligence — premium decision section */}
+          <div className="mx-5 mt-4">
             <ContactIntelligenceCard lead={lead} />
           </div>
 

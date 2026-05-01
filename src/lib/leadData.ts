@@ -18,6 +18,13 @@ export interface Lead {
   socialPresence?: { instagram?: boolean; whatsapp?: boolean; tiktok?: boolean };
   isChain?: boolean;
   goldenOpportunity?: boolean;
+  // Buying Signal Detector fields (computed client-side after search,
+  // and persisted on saved_leads via the calculate-buying-signals function).
+  buying_signal_score?: number;
+  buying_signal_status?: 'Hot' | 'Warm' | 'Cold';
+  buying_signal_reasons?: string[];
+  next_best_action?: string;
+  reviewTexts?: string[];
 }
 
 export interface SearchFilters {
