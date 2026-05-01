@@ -99,14 +99,15 @@ const Dashboard = () => {
 
     try {
       const { leads: results, stats } = await searchRealPlaces(city, category, filters);
-      setLeads(results);
+      const enriched = enrichWithSignals(results);
+      setLeads(enriched);
       setSearchStats(stats || null);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
     } catch (err) {
       console.error("Real search failed, falling back to mock:", err);
       toast.error(t("dashboard.fallbackSearch"));
-      const results = generateMockLeads(city, category);
+      const results = enrichWithSignals(generateMockLeads(city, category));
       setLeads(results);
       setHasSearched(true);
       setProfile((p: any) => p ? { ...p, search_count: newCount } : p);
@@ -114,6 +115,59 @@ const Dashboard = () => {
       setIsSearching(false);
     }
   }, [user, t]);
+
+  // Compute buying-signal fields for raw leads (used right after search).
+  function enrichWithSignals(arr: Lead[]): Lead[] {
+    return arr.map((l) => {
+      const s = calculateBuyingSignal(l, { reviewTexts: l.reviewTexts });
+      return {
+        ...l,
+        buying_signal_score: s.score,
+        buying_signal_status: s.status,
+        buying_signal_reasons: s.reasons,
+        next_best_action: s.next_best_action,
+      };
+    });
+  }
+
+  // ── Filter + sort visible leads by buying signal ──
+  const visibleLeads = useMemo(() => {
+    let arr = [...leads];
+    switch (signalFilter) {
+      case "Hot":  arr = arr.filter(l => l.buying_signal_status === "Hot"); break;
+      case "Warm": arr = arr.filter(l => l.buying_signal_status === "Warm"); break;
+      case "Cold": arr = arr.filter(l => l.buying_signal_status === "Cold"); break;
+      case "noWebsiteHot":
+        arr = arr.filter(l => !l.hasWebsite && l.buying_signal_status === "Hot"); break;
+      case "phoneHot":
+        arr = arr.filter(l => !!l.phone && l.buying_signal_status === "Hot"); break;
+    }
+    if (sortBySignal) {
+      arr.sort((a, b) => (b.buying_signal_score ?? 0) - (a.buying_signal_score ?? 0));
+    }
+    return arr;
+  }, [leads, signalFilter, sortBySignal]);
+
+  // ── Stats over current results ──
+  const signalStats = useMemo(() => {
+    const hot  = leads.filter(l => l.buying_signal_status === "Hot").length;
+    const warm = leads.filter(l => l.buying_signal_status === "Warm").length;
+    const cold = leads.filter(l => l.buying_signal_status === "Cold").length;
+    const sum  = leads.reduce((acc, l) => acc + (l.buying_signal_score ?? 0), 0);
+    const avg  = leads.length ? Math.round(sum / leads.length) : 0;
+    const byCategory: Record<string, number> = {};
+    const byCity: Record<string, number> = {};
+    for (const l of leads) {
+      if (l.buying_signal_status === "Hot") {
+        byCategory[l.category] = (byCategory[l.category] ?? 0) + 1;
+        byCity[l.city]         = (byCity[l.city] ?? 0) + 1;
+      }
+    }
+    const topCategory = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    const topCity     = Object.entries(byCity).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    return { hot, warm, cold, avg, topCategory, topCity };
+  }, [leads]);
+
 
   const handleSaveLead = async (lead: Lead) => {
     await saveLead(lead);
