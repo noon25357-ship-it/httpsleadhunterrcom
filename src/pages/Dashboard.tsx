@@ -522,4 +522,23 @@ const Dashboard = () => {
   );
 };
 
+const TONE_CLASSES: Record<string, string> = {
+  hot:     "bg-primary/10 border-primary/30 text-primary",
+  warm:    "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",
+  cold:    "bg-muted border-border text-muted-foreground",
+  neutral: "bg-card border-border text-foreground",
+};
+
+const StatCard = ({
+  icon, label, value, tone = "neutral",
+}: { icon?: React.ReactNode; label: string; value: number | string; tone?: keyof typeof TONE_CLASSES }) => (
+  <div className={`rounded-xl border px-3 py-2 flex items-center gap-2 ${TONE_CLASSES[tone]}`}>
+    {icon && <span className="shrink-0">{icon}</span>}
+    <div className="min-w-0">
+      <p className="text-[10px] font-bold opacity-70 truncate">{label}</p>
+      <p className="text-sm font-black truncate">{value}</p>
+    </div>
+  </div>
+);
+
 export default Dashboard;
