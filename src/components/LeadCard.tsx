@@ -122,6 +122,17 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${confMeta.classes}`}>
           {ci.best_contact_path.confidence.toUpperCase()}
         </span>
+
+        {/* ── Buying Signal badge ── */}
+        <span
+          className={`ml-auto inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md ${signalMeta.classes}`}
+          title={`${signalMeta.label} — ${signal.score}/100`}
+        >
+          <span>{signalMeta.emoji}</span>
+          <span className="hidden sm:inline">{signalMeta.label}</span>
+          <span className="sm:hidden">{signalMeta.shortLabel}</span>
+          <span className="opacity-70">({signal.score})</span>
+        </span>
       </div>
 
       {/* ── Identity ── */}
