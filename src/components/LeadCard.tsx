@@ -188,9 +188,20 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         <span>{ctaText}</span>
       </button>
 
-      {/* ── Subtle insight chips (max 2) + quick copy ── */}
+      {/* ── الخطوة المقترحة (Next Best Action) ── */}
+      {signal.next_best_action && (
+        <div className="bg-secondary/40 border border-border/60 rounded-lg px-3 py-2 flex items-start gap-2">
+          <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold text-primary mb-0.5">الخطوة المقترحة</p>
+            <p className="text-[11px] sm:text-xs text-foreground leading-snug">{signal.next_best_action}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Subtle insight chips (max 2 buying-signal reasons) + quick copy ── */}
       <div className="flex items-center gap-2 flex-wrap">
-        {visibleTags.map((tag) => (
+        {(signalReasonsToShow.length > 0 ? signalReasonsToShow : visibleTags).map((tag) => (
           <span
             key={tag}
             className="text-[10px] sm:text-[11px] text-muted-foreground/80 bg-transparent border border-border/50 px-2 py-0.5 rounded-md"
