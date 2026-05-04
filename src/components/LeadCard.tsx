@@ -216,3 +216,8 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
           ))}
         </div>
       )}
+    </motion.div>
+  );
+};
+
+export default LeadCard;
