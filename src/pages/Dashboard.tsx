@@ -344,44 +344,70 @@ const Dashboard = () => {
                         </div>
                       )}
 
-                      {/* ── Signal filter chips + sort toggle ── */}
+                      {/* ── Filters: split into two visual groups ── */}
                       {leads.length > 0 && (
-                        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-                          {SIGNAL_FILTERS.map((f) => (
+                        <div className="space-y-2 mb-4">
+                          {/* Sales filters (Buying Signal) */}
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                            <span className="shrink-0 text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+                              فلاتر البيع
+                            </span>
+                            {SIGNAL_FILTERS.filter(f => !["seoStrong", "noWebsiteStrong"].includes(f.id)).map((f) => (
+                              <button
+                                key={f.id}
+                                onClick={() => setSignalFilter(f.id)}
+                                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                  signalFilter === f.id
+                                    ? "bg-primary/15 text-primary border-primary/30"
+                                    : "bg-secondary text-secondary-foreground border-border"
+                                }`}
+                              >
+                                {f.label}
+                              </button>
+                            ))}
                             <button
-                              key={f.id}
-                              onClick={() => setSignalFilter(f.id)}
-                              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                                signalFilter === f.id
+                              onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) setSortBySEO(false); }}
+                              className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                sortBySignal
                                   ? "bg-primary/15 text-primary border-primary/30"
                                   : "bg-secondary text-secondary-foreground border-border"
                               }`}
+                              title="ترتيب حسب درجة الإشارة"
                             >
-                              {f.label}
+                              ↕ ترتيب حسب الإشارة
                             </button>
-                          ))}
-                          <button
-                            onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) setSortBySEO(false); }}
-                            className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                              sortBySignal
-                                ? "bg-primary/15 text-primary border-primary/30"
-                                : "bg-secondary text-secondary-foreground border-border"
-                            }`}
-                            title="ترتيب حسب درجة الإشارة"
-                          >
-                            ↕ ترتيب حسب الإشارة
-                          </button>
-                          <button
-                            onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) setSortBySignal(false); }}
-                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                              sortBySEO
-                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                                : "bg-secondary text-secondary-foreground border-border"
-                            }`}
-                            title="الأعلى فرصة ظهور في قوقل"
-                          >
-                            🌿 الأعلى فرصة ظهور
-                          </button>
+                          </div>
+
+                          {/* Visibility filters */}
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide border-t border-border/40 pt-2">
+                            <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider px-1">
+                              فلاتر الظهور
+                            </span>
+                            {SIGNAL_FILTERS.filter(f => ["seoStrong", "noWebsiteStrong"].includes(f.id)).map((f) => (
+                              <button
+                                key={f.id}
+                                onClick={() => setSignalFilter(f.id)}
+                                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                  signalFilter === f.id
+                                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                    : "bg-secondary text-secondary-foreground border-border"
+                                }`}
+                              >
+                                {f.label}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) setSortBySignal(false); }}
+                              className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                sortBySEO
+                                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                  : "bg-secondary text-secondary-foreground border-border"
+                              }`}
+                              title="الأعلى فرصة ظهور في قوقل"
+                            >
+                              🌿 الأعلى فرصة ظهور
+                            </button>
+                          </div>
                         </div>
                       )}
 
