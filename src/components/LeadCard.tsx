@@ -227,3 +227,24 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
 };
 
 export default LeadCard;
+
+/* ── Inline collapsible wrapper for SEO opportunity details ── */
+const SEOOpportunityCollapsible = ({ lead }: { lead: Lead }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full inline-flex items-center justify-center gap-1.5 text-[11px] font-bold py-1.5 rounded-lg bg-secondary/40 hover:bg-secondary/70 text-muted-foreground border border-border/50 transition-colors"
+      >
+        <span>🔍 عرض تفاصيل الظهور</span>
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="mt-2">
+          <SEOOpportunityBox lead={lead} />
+        </div>
+      )}
+    </div>
+  );
+};
