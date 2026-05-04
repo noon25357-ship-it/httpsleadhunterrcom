@@ -380,7 +380,7 @@ const Dashboard = () => {
                             <span className="shrink-0 text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
                               فلاتر البيع
                             </span>
-                            {SIGNAL_FILTERS.filter(f => !["seoStrong", "noWebsiteStrong"].includes(f.id)).map((f) => (
+                            {SIGNAL_FILTERS.filter(f => !VISIBILITY_FILTER_IDS.includes(f.id) && !OUTREACH_FILTER_IDS.includes(f.id)).map((f) => (
                               <button
                                 key={f.id}
                                 onClick={() => setSignalFilter(f.id)}
@@ -394,7 +394,7 @@ const Dashboard = () => {
                               </button>
                             ))}
                             <button
-                              onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) setSortBySEO(false); }}
+                              onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) { setSortBySEO(false); setSortByOutreach(false); } }}
                               className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                                 sortBySignal
                                   ? "bg-primary/15 text-primary border-primary/30"
@@ -411,7 +411,7 @@ const Dashboard = () => {
                             <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider px-1">
                               فلاتر الظهور
                             </span>
-                            {SIGNAL_FILTERS.filter(f => ["seoStrong", "noWebsiteStrong"].includes(f.id)).map((f) => (
+                            {SIGNAL_FILTERS.filter(f => VISIBILITY_FILTER_IDS.includes(f.id)).map((f) => (
                               <button
                                 key={f.id}
                                 onClick={() => setSignalFilter(f.id)}
@@ -425,7 +425,7 @@ const Dashboard = () => {
                               </button>
                             ))}
                             <button
-                              onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) setSortBySignal(false); }}
+                              onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) { setSortBySignal(false); setSortByOutreach(false); } }}
                               className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                                 sortBySEO
                                   ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
