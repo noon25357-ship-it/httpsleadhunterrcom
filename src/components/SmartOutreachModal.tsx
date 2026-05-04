@@ -84,7 +84,7 @@ const SmartOutreachModal = ({ lead, outreach, seo, open, onClose, onMarkContacte
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div dir="rtl" className="p-4 space-y-4">
           {/* Reason + offer */}
           <div className="grid grid-cols-1 gap-2">
             <div className="rounded-lg bg-secondary/40 border border-border/60 p-3">
