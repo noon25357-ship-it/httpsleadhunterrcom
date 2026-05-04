@@ -17,11 +17,16 @@ import ScanningOverlay from "@/components/ScanningOverlay";
 import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
 import { calculateBuyingSignal } from "@/lib/buyingSignals";
 import { calculateSEOOpportunity } from "@/lib/seoOpportunity";
+import { calculateContactReadiness } from "@/lib/smartOutreach";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
 
-type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot" | "seoStrong" | "noWebsiteStrong";
+type SignalFilter =
+  | "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot"
+  | "seoStrong" | "noWebsiteStrong"
+  | "outreachHot" | "hasPhone" | "noWebsiteReady" | "ratingNoWebsite" | "needsFollowUp";
+
 const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
   { id: "all",              label: "كل الفرص" },
   { id: "Hot",              label: "🔥 Hot فقط" },
@@ -31,7 +36,15 @@ const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
   { id: "phoneHot",         label: "لديه رقم + Hot" },
   { id: "seoStrong",        label: "🌿 فرص ظهور قوية" },
   { id: "noWebsiteStrong",  label: "💎 بدون موقع + فرصة قوية" },
+  { id: "outreachHot",      label: "🟢 جاهز للتواصل" },
+  { id: "hasPhone",         label: "📱 عنده رقم/واتساب" },
+  { id: "noWebsiteReady",   label: "بدون موقع + جاهز" },
+  { id: "ratingNoWebsite",  label: "تقييم جيد + بدون موقع" },
+  { id: "needsFollowUp",    label: "يحتاج متابعة" },
 ];
+
+const OUTREACH_FILTER_IDS: SignalFilter[] = ["outreachHot", "hasPhone", "noWebsiteReady", "ratingNoWebsite", "needsFollowUp"];
+const VISIBILITY_FILTER_IDS: SignalFilter[] = ["seoStrong", "noWebsiteStrong"];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -51,6 +64,7 @@ const Dashboard = () => {
   const [signalFilter, setSignalFilter] = useState<SignalFilter>("all");
   const [sortBySignal, setSortBySignal] = useState(true);
   const [sortBySEO, setSortBySEO] = useState(false);
+  const [sortByOutreach, setSortByOutreach] = useState(false);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
@@ -149,14 +163,28 @@ const Dashboard = () => {
         arr = arr.filter(l => calculateSEOOpportunity(l).level === "strong"); break;
       case "noWebsiteStrong":
         arr = arr.filter(l => !l.hasWebsite && calculateSEOOpportunity(l).level === "strong"); break;
+      case "outreachHot":
+        arr = arr.filter(l => calculateContactReadiness(l).level === "hot"); break;
+      case "hasPhone":
+        arr = arr.filter(l => !!l.phone); break;
+      case "noWebsiteReady":
+        arr = arr.filter(l => !l.hasWebsite && calculateContactReadiness(l).level !== "low"); break;
+      case "ratingNoWebsite":
+        arr = arr.filter(l => !l.hasWebsite && l.rating >= 4.0); break;
+      case "needsFollowUp":
+        arr = arr.filter(l => calculateContactReadiness(l).level === "warm"); break;
     }
-    if (sortBySEO) {
+    if (sortByOutreach) {
+      arr.sort((a, b) => calculateContactReadiness(b).score - calculateContactReadiness(a).score);
+    } else if (sortBySEO) {
       arr.sort((a, b) => calculateSEOOpportunity(b).score - calculateSEOOpportunity(a).score);
     } else if (sortBySignal) {
       arr.sort((a, b) => (b.buying_signal_score ?? 0) - (a.buying_signal_score ?? 0));
+    } else {
+      arr.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
     }
     return arr;
-  }, [leads, signalFilter, sortBySignal, sortBySEO]);
+  }, [leads, signalFilter, sortBySignal, sortBySEO, sortByOutreach]);
 
   // ── Stats over current results ──
   const signalStats = useMemo(() => {
@@ -352,7 +380,7 @@ const Dashboard = () => {
                             <span className="shrink-0 text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
                               فلاتر البيع
                             </span>
-                            {SIGNAL_FILTERS.filter(f => !["seoStrong", "noWebsiteStrong"].includes(f.id)).map((f) => (
+                            {SIGNAL_FILTERS.filter(f => !VISIBILITY_FILTER_IDS.includes(f.id) && !OUTREACH_FILTER_IDS.includes(f.id)).map((f) => (
                               <button
                                 key={f.id}
                                 onClick={() => setSignalFilter(f.id)}
@@ -366,7 +394,7 @@ const Dashboard = () => {
                               </button>
                             ))}
                             <button
-                              onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) setSortBySEO(false); }}
+                              onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) { setSortBySEO(false); setSortByOutreach(false); } }}
                               className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                                 sortBySignal
                                   ? "bg-primary/15 text-primary border-primary/30"
@@ -378,12 +406,12 @@ const Dashboard = () => {
                             </button>
                           </div>
 
-                          {/* Visibility filters */}
+                          {/* Outreach filters (Smart Outreach Assistant) */}
                           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide border-t border-border/40 pt-2">
                             <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider px-1">
-                              فلاتر الظهور
+                              فلاتر التواصل
                             </span>
-                            {SIGNAL_FILTERS.filter(f => ["seoStrong", "noWebsiteStrong"].includes(f.id)).map((f) => (
+                            {SIGNAL_FILTERS.filter(f => OUTREACH_FILTER_IDS.includes(f.id)).map((f) => (
                               <button
                                 key={f.id}
                                 onClick={() => setSignalFilter(f.id)}
@@ -397,7 +425,37 @@ const Dashboard = () => {
                               </button>
                             ))}
                             <button
-                              onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) setSortBySignal(false); }}
+                              onClick={() => { setSortByOutreach((v) => !v); if (!sortByOutreach) { setSortBySignal(false); setSortBySEO(false); } }}
+                              className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                sortByOutreach
+                                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                  : "bg-secondary text-secondary-foreground border-border"
+                              }`}
+                              title="الأعلى جاهزية للتواصل"
+                            >
+                              🟢 الأعلى جاهزية
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide border-t border-border/40 pt-2">
+                            <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider px-1">
+                              فلاتر الظهور
+                            </span>
+                            {SIGNAL_FILTERS.filter(f => VISIBILITY_FILTER_IDS.includes(f.id)).map((f) => (
+                              <button
+                                key={f.id}
+                                onClick={() => setSignalFilter(f.id)}
+                                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                  signalFilter === f.id
+                                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                    : "bg-secondary text-secondary-foreground border-border"
+                                }`}
+                              >
+                                {f.label}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) { setSortBySignal(false); setSortByOutreach(false); } }}
                               className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                                 sortBySEO
                                   ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
