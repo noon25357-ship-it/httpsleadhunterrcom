@@ -191,15 +191,15 @@ export function calculateSEOOpportunity(lead: Lead): SEOOpportunity {
 
   if (!lead.hasWebsite) {
     score += 25;
-    reasons.push("لا يوجد موقع إلكتروني واضح");
+    reasons.push("لا يوجد موقع إلكتروني واضح يمثّل النشاط");
   }
   if (lead.phone) {
     score += 15;
-    reasons.push("وجود رقم تواصل يجعل فرصة البيع أسهل");
+    reasons.push("يسهل تحويل المهتمين إلى تواصل مباشر عبر واتساب");
   }
   if (lead.rating >= 4.2) {
     score += 15;
-    reasons.push("التقييم جيد ويمكن تحويله إلى ظهور أقوى في قوقل");
+    reasons.push("تقييم ممتاز يستحق ظهور أقوى أمام العملاء");
   }
   if (lead.reviews >= 10 && lead.reviews <= 200) {
     score += 10;
@@ -211,7 +211,7 @@ export function calculateSEOOpportunity(lead: Lead): SEOOpportunity {
   }
   if (isMajorCity(lead.city)) {
     score += 10;
-    reasons.push("النشاط مناسب لكلمات بحث محلية عالية النية");
+    reasons.push("المدينة فيها بحث محلي عالي على هذا النوع من الخدمات");
   }
   // Bonus: تقييم جيد + بدون موقع = فرصة ذهبية حقيقية
   if (!lead.hasWebsite && lead.rating >= 4.2) {

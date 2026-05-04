@@ -203,25 +203,19 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
       {/* ── SEO Opportunity Box ── */}
       <SEOOpportunityBox lead={lead} />
 
-      {/* ── Subtle insight chips (max 2 buying-signal reasons) + quick copy ── */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {(signalReasonsToShow.length > 0 ? signalReasonsToShow : visibleTags).map((tag) => (
-          <span
-            key={tag}
-            className="text-[10px] sm:text-[11px] text-muted-foreground/80 bg-transparent border border-border/50 px-2 py-0.5 rounded-md"
-          >
-            {tag}
-          </span>
-        ))}
-        <button
-          onClick={copyMessage}
-          className="ml-auto inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          title={t("leadCard.copyMessage")}
-        >
-          <Copy className="w-3 h-3" />
-          <span>{t("leadCard.copyMessage")}</span>
-        </button>
-      </div>
+      {/* ── Subtle insight chips (max 2 buying-signal reasons) ── */}
+      {(signalReasonsToShow.length > 0 ? signalReasonsToShow : visibleTags).length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {(signalReasonsToShow.length > 0 ? signalReasonsToShow : visibleTags).map((tag) => (
+            <span
+              key={tag}
+              className="text-[10px] sm:text-[11px] text-muted-foreground/80 bg-transparent border border-border/50 px-2 py-0.5 rounded-md"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 };
