@@ -358,7 +358,7 @@ const Dashboard = () => {
                             </button>
                           ))}
                           <button
-                            onClick={() => setSortBySignal((v) => !v)}
+                            onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) setSortBySEO(false); }}
                             className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                               sortBySignal
                                 ? "bg-primary/15 text-primary border-primary/30"
@@ -367,6 +367,17 @@ const Dashboard = () => {
                             title="ترتيب حسب درجة الإشارة"
                           >
                             ↕ ترتيب حسب الإشارة
+                          </button>
+                          <button
+                            onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) setSortBySignal(false); }}
+                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                              sortBySEO
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                : "bg-secondary text-secondary-foreground border-border"
+                            }`}
+                            title="الأعلى فرصة ظهور في قوقل"
+                          >
+                            🌿 الأعلى فرصة ظهور
                           </button>
                         </div>
                       )}
