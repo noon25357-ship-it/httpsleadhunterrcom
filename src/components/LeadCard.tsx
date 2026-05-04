@@ -113,18 +113,10 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
           <span>{channelMeta.shortLabel}</span>
         </span>
 
-        {/* subtle visual divider between WHERE and WHO */}
-        <span className="text-border text-xs leading-none select-none">·</span>
-
-        {/* WHO — decision maker */}
-        <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-muted-foreground bg-secondary/60 border border-border/60 px-2 py-1 rounded-md">
+        {/* WHO — decision maker (subtle, desktop only) */}
+        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground/80">
           <UserCircle2 className="w-3 h-3" />
-          <span className="truncate max-w-[140px]">{ci.likely_decision_maker.role}</span>
-        </span>
-
-        {/* CONFIDENCE — small */}
-        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${confMeta.classes}`}>
-          {ci.best_contact_path.confidence.toUpperCase()}
+          <span className="truncate max-w-[120px]">{ci.likely_decision_maker.role}</span>
         </span>
 
         {/* ── Buying Signal badge ── */}
