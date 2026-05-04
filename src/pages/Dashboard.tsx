@@ -163,14 +163,28 @@ const Dashboard = () => {
         arr = arr.filter(l => calculateSEOOpportunity(l).level === "strong"); break;
       case "noWebsiteStrong":
         arr = arr.filter(l => !l.hasWebsite && calculateSEOOpportunity(l).level === "strong"); break;
+      case "outreachHot":
+        arr = arr.filter(l => calculateContactReadiness(l).level === "hot"); break;
+      case "hasPhone":
+        arr = arr.filter(l => !!l.phone); break;
+      case "noWebsiteReady":
+        arr = arr.filter(l => !l.hasWebsite && calculateContactReadiness(l).level !== "low"); break;
+      case "ratingNoWebsite":
+        arr = arr.filter(l => !l.hasWebsite && l.rating >= 4.0); break;
+      case "needsFollowUp":
+        arr = arr.filter(l => calculateContactReadiness(l).level === "warm"); break;
     }
-    if (sortBySEO) {
+    if (sortByOutreach) {
+      arr.sort((a, b) => calculateContactReadiness(b).score - calculateContactReadiness(a).score);
+    } else if (sortBySEO) {
       arr.sort((a, b) => calculateSEOOpportunity(b).score - calculateSEOOpportunity(a).score);
     } else if (sortBySignal) {
       arr.sort((a, b) => (b.buying_signal_score ?? 0) - (a.buying_signal_score ?? 0));
+    } else {
+      arr.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
     }
     return arr;
-  }, [leads, signalFilter, sortBySignal, sortBySEO]);
+  }, [leads, signalFilter, sortBySignal, sortBySEO, sortByOutreach]);
 
   // ── Stats over current results ──
   const signalStats = useMemo(() => {
