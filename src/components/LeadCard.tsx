@@ -14,6 +14,8 @@ import {
   type ContactChannel,
 } from "@/lib/contactIntelligence";
 import { calculateBuyingSignal, SIGNAL_BADGE } from "@/lib/buyingSignals";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import SEOOpportunityBox from "./SEOOpportunityBox";
 import SmartOutreachBox from "./SmartOutreachBox";
 
@@ -201,11 +203,11 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
         </div>
       )}
 
-      {/* ── Smart Outreach Assistant ── */}
+      {/* ── Smart Outreach Assistant — single primary box ── */}
       <SmartOutreachBox lead={lead} onMarkContacted={onWhatsApp} />
 
-      {/* ── SEO Opportunity Box ── */}
-      <SEOOpportunityBox lead={lead} />
+      {/* ── SEO Opportunity (collapsible, hidden by default) ── */}
+      <SEOOpportunityCollapsible lead={lead} />
 
       {/* ── Subtle insight chips (max 2 buying-signal reasons) ── */}
       {(signalReasonsToShow.length > 0 ? signalReasonsToShow : visibleTags).length > 0 && (
