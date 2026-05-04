@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { MessageSquare, Sparkles } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
-import { generateSmartOutreach, READINESS_BADGE } from "@/lib/smartOutreach";
+import { generateSmartOutreach, generateShortOffer, READINESS_BADGE } from "@/lib/smartOutreach";
 import { calculateSEOOpportunity } from "@/lib/seoOpportunity";
 import SmartOutreachModal from "./SmartOutreachModal";
 
@@ -15,8 +15,8 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
   const outreach = useMemo(() => generateSmartOutreach(lead), [lead]);
   const seo = useMemo(() => calculateSEOOpportunity(lead), [lead]);
   const meta = READINESS_BADGE[outreach.contact_readiness_level];
-  const showVisibility = seo.level !== "weak";
-  const seoReason = seo.reasons[0];
+  const showVisibility = seo.level === "strong";
+  const shortOffer = useMemo(() => generateShortOffer(lead, outreach.niche), [lead, outreach.niche]);
 
   return (
     <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 flex flex-col gap-2.5">
@@ -36,42 +36,25 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
         💡 {outreach.contact_reason}
       </p>
 
-      {/* Suggested offer */}
+      {/* Suggested offer (short) */}
       <div className="text-[11px] text-foreground bg-background/60 border border-border/40 rounded-lg px-2 py-1.5">
         <span className="text-muted-foreground">العرض:</span>{" "}
-        <span className="font-bold">{outreach.suggested_offer}</span>
+        <span className="font-bold">{shortOffer}</span>
       </div>
 
-      {/* Tags + Visibility */}
-      <div className="flex flex-wrap gap-1">
-        {showVisibility && (
-          <span
-            className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded"
-            title={seoReason}
-          >
-            🔍 فرصة ظهور · {seo.suggested_local_keyword}
-          </span>
-        )}
-        {outreach.tags.map((t) => (
-          <span
-            key={t}
-            className="text-[10px] text-muted-foreground bg-secondary/60 border border-border/50 px-1.5 py-0.5 rounded"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-
-      {showVisibility && seoReason && (
-        <p className="text-[10.5px] text-muted-foreground leading-snug">
-          🌿 {seoReason}
-        </p>
+      {/* Subtle visibility hint (no level/score) */}
+      {showVisibility && (
+        <div className="text-[10.5px] text-muted-foreground/90 inline-flex items-center gap-1">
+          <span>🔍</span>
+          <span>فرصة ظهور:</span>
+          <span className="text-foreground/80 font-semibold truncate">{seo.suggested_local_keyword}</span>
+        </div>
       )}
 
-      {/* CTA */}
+      {/* CTA — primary */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full inline-flex items-center justify-center gap-1.5 text-[11px] font-bold py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-colors"
+        className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-500/90 text-white shadow-[0_0_18px_hsl(145_80%_42%/0.25)] transition-all active:scale-[0.98]"
       >
         <Sparkles className="w-3.5 h-3.5" />
         جهّز الرسالة
