@@ -51,10 +51,10 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
         </div>
       )}
 
-      {/* CTA */}
+      {/* CTA — primary */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full inline-flex items-center justify-center gap-1.5 text-[11px] font-bold py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-colors"
+        className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-500/90 text-white shadow-[0_0_18px_hsl(145_80%_42%/0.25)] transition-all active:scale-[0.98]"
       >
         <Sparkles className="w-3.5 h-3.5" />
         جهّز الرسالة
