@@ -2,6 +2,14 @@ import type { Lead } from "./leadData";
 
 export type SEOLevel = "strong" | "medium" | "weak";
 
+export type OpportunityType =
+  | "website"          // فرصة موقع إلكتروني
+  | "reviews"          // فرصة تقييمات
+  | "local_visibility" // فرصة ظهور محلي
+  | "whatsapp_booking" // فرصة واتساب وحجز
+  | "google_business"  // فرصة Google Business
+  | "content";         // فرصة محتوى
+
 export interface SEOOpportunity {
   score: number;             // 0-100
   level: SEOLevel;
@@ -10,6 +18,9 @@ export interface SEOOpportunity {
   suggested_local_keyword: string;
   suggested_offer: string;
   outreach_angle: string;
+  opportunity_type: OpportunityType;
+  opportunity_type_label: string;
+  opportunity_type_reason: string;
 }
 
 export const SEO_BADGE: Record<SEOLevel, { label: string; emoji: string; classes: string }> = {
@@ -28,6 +39,15 @@ export const SEO_BADGE: Record<SEOLevel, { label: string; emoji: string; classes
     emoji: "•",
     classes: "bg-slate-500/15 text-slate-400 border border-slate-500/30",
   },
+};
+
+export const OPPORTUNITY_TYPE_META: Record<OpportunityType, { label: string; emoji: string }> = {
+  website:           { label: "فرصة موقع إلكتروني",     emoji: "🌐" },
+  reviews:           { label: "فرصة تقييمات",            emoji: "⭐" },
+  local_visibility:  { label: "فرصة ظهور محلي",          emoji: "📍" },
+  whatsapp_booking:  { label: "فرصة واتساب وحجز",        emoji: "💬" },
+  google_business:   { label: "فرصة Google Business",    emoji: "🗺️" },
+  content:           { label: "فرصة محتوى",              emoji: "✍️" },
 };
 
 const HIGH_VALUE_CATEGORIES = [
@@ -55,7 +75,6 @@ export function generateLocalKeyword(lead: Pick<Lead, "category" | "city" | "are
   const city = (lead.city || "").trim();
   if (!cat && !city) return "خدمات محلية";
 
-  // Map common categories to natural Arabic search phrases
   const map: Record<string, string> = {
     عيادات: "عيادة أسنان",
     عيادة: "عيادة",
@@ -87,34 +106,82 @@ export function generateLocalKeyword(lead: Pick<Lead, "category" | "city" | "are
   return city ? `${phrase} في ${city}` : phrase;
 }
 
-/* ── Offer suggestion ── */
+/* ── Opportunity type detection ── */
+function detectOpportunityType(lead: Lead): { type: OpportunityType; reason: string } {
+  const cat = lead.category || "";
+
+  // 1. لا يوجد موقع + تقييم جيد → فرصة موقع
+  if (!lead.hasWebsite && lead.rating >= 4.0) {
+    return {
+      type: "website",
+      reason: "النشاط تقييمه جيد لكن لا يوجد موقع واضح.",
+    };
+  }
+  // 2. مراجعات قليلة → فرصة تقييمات
+  if (lead.reviews < 15) {
+    return {
+      type: "reviews",
+      reason: "عدد المراجعات قليل مقارنة بطبيعة القطاع.",
+    };
+  }
+  // 3. مطاعم/كافيهات → فرصة واتساب وحجز
+  if (cat.includes("مطعم") || cat.includes("مطاعم") || cat.includes("كافيه")) {
+    return {
+      type: "whatsapp_booking",
+      reason: "النشاط يعتمد على الحجز والطلبات السريعة عبر واتساب.",
+    };
+  }
+  // 4. لا يوجد موقع (بدون تقييم قوي) → Google Business
+  if (!lead.hasWebsite) {
+    return {
+      type: "google_business",
+      reason: "تحسين الملف على Google Business يرفع الظهور بسرعة.",
+    };
+  }
+  // 5. عقار/خدمات → محتوى
+  if (cat.includes("عقار") || cat.includes("تدريب")) {
+    return {
+      type: "content",
+      reason: "صفحات محتوى محلية تجلب عملاء يبحثون بنية شراء.",
+    };
+  }
+  // 6. الافتراضي → ظهور محلي
+  return {
+    type: "local_visibility",
+    reason: "تحسين الكلمات المحلية يجلب عملاء قريبين من النشاط.",
+  };
+}
+
+/* ── Offer suggestion (short, sales-focused) ── */
 export function generateSuggestedOffer(lead: Pick<Lead, "category" | "hasWebsite" | "reviews">): string {
   const cat = lead.category || "";
 
+  if (!lead.hasWebsite) {
+    return "صفحة هبوط محلية + تحسين ظهور قوقل";
+  }
+  if (lead.reviews < 20) {
+    return "تحسين Google Business + زيادة التقييمات";
+  }
   if (cat.includes("عيادة") || cat.includes("أسنان") || cat.includes("جلدية") || cat.includes("تجميل")) {
-    return "صفحة خدمة محلية مثل: تقويم أسنان في جدة";
+    return "صفحة خدمة محلية (مثلاً: تقويم أسنان في جدة)";
   }
   if (cat.includes("عقار")) {
-    return "صفحة محلية مثل: مكتب عقار في شمال الرياض";
+    return "صفحة محلية (مثلاً: مكتب عقار في شمال الرياض)";
   }
   if (cat.includes("مطعم") || cat.includes("مطاعم")) {
     return "تحسين الظهور في بحث المطاعم القريبة";
-  }
-  if (!lead.hasWebsite) {
-    return "صفحة هبوط محلية تظهر في قوقل";
-  }
-  if (lead.reviews < 20) {
-    return "تحسين Google Business Profile وزيادة التقييمات";
   }
   return "تحسين صفحات الخدمات والكلمات المحلية";
 }
 
 /* ── Outreach angle ── */
 function generateOutreachAngle(lead: Pick<Lead, "hasWebsite" | "rating" | "reviews">): string {
-  if (!lead.hasWebsite) return "غياب موقع إلكتروني = فرصة ظهور سريعة في قوقل";
-  if (lead.rating >= 4.2 && lead.reviews >= 10) return "تقييم ممتاز يحتاج فقط ظهور أقوى للعملاء القريبين";
-  if (lead.reviews < 20) return "تحسين الملف الرقمي وزيادة التقييمات لرفع الظهور المحلي";
-  return "تحسين الكلمات المحلية لاستهداف عملاء جدد في نفس المنطقة";
+  if (!lead.hasWebsite && lead.rating >= 4.0) {
+    return "التقييم جيد، لكن الظهور ممكن يتحسن لأن النشاط لا يملك موقعًا واضحًا.";
+  }
+  if (!lead.hasWebsite) return "غياب موقع إلكتروني = فرصة ظهور سريعة في قوقل.";
+  if (lead.reviews < 20) return "تحسين الملف الرقمي وزيادة التقييمات لرفع الظهور المحلي.";
+  return "تحسين الكلمات المحلية لاستهداف عملاء جدد في نفس المنطقة.";
 }
 
 /* ── Main calculator ── */
@@ -123,11 +190,11 @@ export function calculateSEOOpportunity(lead: Lead): SEOOpportunity {
   const reasons: string[] = [];
 
   if (!lead.hasWebsite) {
-    score += 35;
+    score += 25;
     reasons.push("لا يوجد موقع إلكتروني واضح");
   }
   if (lead.phone) {
-    score += 10;
+    score += 15;
     reasons.push("وجود رقم تواصل يجعل فرصة البيع أسهل");
   }
   if (lead.rating >= 4.2) {
@@ -146,17 +213,23 @@ export function calculateSEOOpportunity(lead: Lead): SEOOpportunity {
     score += 10;
     reasons.push("النشاط مناسب لكلمات بحث محلية عالية النية");
   }
+  // Bonus: تقييم جيد + بدون موقع = فرصة ذهبية حقيقية
+  if (!lead.hasWebsite && lead.rating >= 4.2) {
+    score += 10;
+    reasons.unshift("فرصة ذهبية: تقييم ممتاز بدون موقع إلكتروني");
+  }
 
   if (score > 100) score = 100;
 
   const level: SEOLevel = score >= 70 ? "strong" : score >= 40 ? "medium" : "weak";
   const label = SEO_BADGE[level].label;
 
-  // Trim reasons to 2-4
   const finalReasons = reasons.slice(0, 4);
   if (finalReasons.length < 2) {
     finalReasons.push("يمكن تحسين الظهور المحلي بخطوات بسيطة");
   }
+
+  const oppType = detectOpportunityType(lead);
 
   return {
     score,
@@ -166,10 +239,13 @@ export function calculateSEOOpportunity(lead: Lead): SEOOpportunity {
     suggested_local_keyword: generateLocalKeyword(lead),
     suggested_offer: generateSuggestedOffer(lead),
     outreach_angle: generateOutreachAngle(lead),
+    opportunity_type: oppType.type,
+    opportunity_type_label: OPPORTUNITY_TYPE_META[oppType.type].label,
+    opportunity_type_reason: oppType.reason,
   };
 }
 
-/* ── WhatsApp message generator ── */
+/* ── WhatsApp message generator (Saudi tone, non-aggressive) ── */
 export function generateWhatsappMessage(lead: Lead, opp: SEOOpportunity): string {
   const city = lead.city || "منطقتكم";
   const keyword = opp.suggested_local_keyword;

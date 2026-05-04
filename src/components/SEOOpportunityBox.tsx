@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Search, MessageCircle, Eye } from "lucide-react";
+import { MessageCircle, Eye, Eye as EyeOpen } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
-import { calculateSEOOpportunity, SEO_BADGE } from "@/lib/seoOpportunity";
+import { calculateSEOOpportunity, SEO_BADGE, OPPORTUNITY_TYPE_META } from "@/lib/seoOpportunity";
 import SEOWhatsappModal from "./SEOWhatsappModal";
 
 interface Props {
@@ -13,18 +13,29 @@ const SEOOpportunityBox = ({ lead }: Props) => {
   const [planOpen, setPlanOpen] = useState(false);
   const opp = calculateSEOOpportunity(lead);
   const meta = SEO_BADGE[opp.level];
+  const typeMeta = OPPORTUNITY_TYPE_META[opp.opportunity_type];
   const topReasons = opp.reasons.slice(0, 2);
 
   return (
     <div className="rounded-xl border border-border/60 bg-secondary/30 p-3 flex flex-col gap-2.5">
+      {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-[11px] font-bold text-foreground">
-          <Search className="w-3.5 h-3.5 text-primary" />
+          <span>🔍</span>
           <span>فرصة الظهور في قوقل</span>
         </div>
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${meta.classes}`}>
           {meta.emoji} {meta.label} ({opp.score})
         </span>
+      </div>
+
+      {/* Opportunity type chip */}
+      <div className="inline-flex items-start gap-1.5 text-[11px] bg-background/60 border border-border/40 rounded-lg px-2 py-1.5">
+        <span>{typeMeta.emoji}</span>
+        <div className="min-w-0">
+          <div className="font-bold text-foreground">نوع الفرصة: {typeMeta.label}</div>
+          <div className="text-muted-foreground leading-snug">{opp.opportunity_type_reason}</div>
+        </div>
       </div>
 
       {/* Reasons */}
@@ -56,20 +67,29 @@ const SEOOpportunityBox = ({ lead }: Props) => {
           onClick={() => setPlanOpen((v) => !v)}
           className="inline-flex items-center justify-center gap-1 text-[11px] font-bold py-1.5 px-2.5 rounded-lg bg-secondary hover:bg-secondary/70 text-foreground border border-border"
         >
-          <Eye className="w-3 h-3" />
-          عرض الخطة
+          {planOpen ? <EyeOpen className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          {planOpen ? "إخفاء الخطة" : "عرض الخطة"}
         </button>
       </div>
 
+      {/* Short sales plan */}
       {planOpen && (
-        <div className="text-[11px] text-foreground bg-background/60 border border-border/40 rounded-lg p-2.5 space-y-1.5">
+        <div className="text-[11px] bg-background/60 border border-border/40 rounded-lg p-2.5 space-y-2">
           <div>
-            <span className="text-muted-foreground">العرض المقترح:</span>{" "}
-            <span className="font-bold">{opp.suggested_offer}</span>
+            <div className="text-muted-foreground font-bold">العرض المناسب:</div>
+            <div className="text-foreground">{opp.suggested_offer}</div>
           </div>
           <div>
-            <span className="text-muted-foreground">زاوية التواصل:</span>{" "}
-            <span>{opp.outreach_angle}</span>
+            <div className="text-muted-foreground font-bold">زاوية التواصل:</div>
+            <div className="text-foreground">{opp.outreach_angle}</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground font-bold">ماذا أرسل له؟</div>
+            <div className="text-foreground">رسالة واتساب جاهزة (اضغط زر "ولّد رسالة واتساب").</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground font-bold">ماذا أبيع عليه؟</div>
+            <div className="text-foreground">صفحة تعريفية + واتساب + تحسين Google Business.</div>
           </div>
         </div>
       )}

@@ -21,15 +21,16 @@ import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
 
-type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot" | "seoStrong";
+type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot" | "seoStrong" | "noWebsiteStrong";
 const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
-  { id: "all",          label: "كل الفرص" },
-  { id: "Hot",          label: "🔥 Hot فقط" },
-  { id: "Warm",         label: "⚡ Warm فقط" },
-  { id: "Cold",         label: "🧊 Cold فقط" },
-  { id: "noWebsiteHot", label: "بدون موقع + Hot" },
-  { id: "phoneHot",     label: "لديه رقم + Hot" },
-  { id: "seoStrong",    label: "🌿 فرص ظهور قوية" },
+  { id: "all",              label: "كل الفرص" },
+  { id: "Hot",              label: "🔥 Hot فقط" },
+  { id: "Warm",             label: "⚡ Warm فقط" },
+  { id: "Cold",             label: "🧊 Cold فقط" },
+  { id: "noWebsiteHot",     label: "بدون موقع + Hot" },
+  { id: "phoneHot",         label: "لديه رقم + Hot" },
+  { id: "seoStrong",        label: "🌿 فرص ظهور قوية" },
+  { id: "noWebsiteStrong",  label: "💎 بدون موقع + فرصة قوية" },
 ];
 
 const Dashboard = () => {
@@ -146,6 +147,8 @@ const Dashboard = () => {
         arr = arr.filter(l => !!l.phone && l.buying_signal_status === "Hot"); break;
       case "seoStrong":
         arr = arr.filter(l => calculateSEOOpportunity(l).level === "strong"); break;
+      case "noWebsiteStrong":
+        arr = arr.filter(l => !l.hasWebsite && calculateSEOOpportunity(l).level === "strong"); break;
     }
     if (sortBySEO) {
       arr.sort((a, b) => calculateSEOOpportunity(b).score - calculateSEOOpportunity(a).score);
