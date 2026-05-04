@@ -188,6 +188,28 @@ export function generateSuggestedOffer(_lead: Lead, niche: Niche): string {
   return map[niche];
 }
 
+/* ── Short offer (card view) — 2 components max ── */
+export function generateShortOffer(_lead: Lead, niche: Niche): string {
+  const map: Record<Niche, string> = {
+    dental_clinic: "صفحة حجز + رابط واتساب",
+    beauty_clinic: "صفحة خدمة + واتساب حجز",
+    real_estate: "صفحة حي محلية + واتساب",
+    restaurant: "تحسين ملف قوقل + رابط واتساب",
+    cafe: "تحسين ملف قوقل + منشورات",
+    car_wash: "صفحة هبوط + حجز سريع",
+    laundry: "صفحة خدمة + واتساب توصيل",
+    salon: "صفحة خدمات + واتساب حجز",
+    car_repair: "ظهور محلي + واتساب",
+    training_center: "صفحة دورات + تسجيل",
+    cleaning_company: "صفحة خدمة + واتساب",
+    pest_control: "صفحة عاجلة + واتساب",
+    flowers_gifts: "منشورات + واتساب طلب",
+    mobile_shop: "تحسين ملف قوقل + واتساب",
+    general_local_business: "تحسين ملف قوقل + رابط واتساب",
+  };
+  return map[niche];
+}
+
 /* ── Local angle ── */
 function generateLocalAngle(lead: Lead, niche: Niche): string {
   const city = lead.city || "منطقتكم";
