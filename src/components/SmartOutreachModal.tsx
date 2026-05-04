@@ -214,13 +214,13 @@ const SmartOutreachModal = ({ lead, outreach, seo, open, onClose, onMarkContacte
               const isOpen = openObj === o.id;
               const text = outreach.objection_replies[o.id];
               return (
-                <div key={o.id} className="rounded-lg border border-border/60 bg-secondary/30 overflow-hidden">
+                <div key={o.id} dir="rtl" className="rounded-lg border border-border/60 bg-secondary/30 overflow-hidden">
                   <button
                     onClick={() => setOpenObj(isOpen ? null : o.id)}
                     className="w-full flex items-center justify-between gap-2 px-3 py-2 text-xs font-bold text-foreground"
                   >
-                    <span>{o.emoji} {o.label}</span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    <span className="flex-1 text-right">{o.emoji} {o.label}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                   </button>
                   {isOpen && (
                     <div className="px-3 pb-3 space-y-2">
