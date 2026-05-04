@@ -101,6 +101,42 @@ const SmartOutreachModal = ({ lead, outreach, seo, open, onClose, onMarkContacte
             </div>
           </div>
 
+          {/* Visibility opportunity details */}
+          {seo && (
+            <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/20 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] font-bold text-emerald-400">🔍 تفاصيل فرصة الظهور</p>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${SEO_BADGE[seo.level].classes}`}>
+                  {SEO_BADGE[seo.level].emoji} {SEO_BADGE[seo.level].label} ({seo.score})
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 text-[11px] text-foreground">
+                <div>
+                  <span className="text-muted-foreground">الكلمة المحلية المقترحة: </span>
+                  <span className="font-bold">{seo.suggested_local_keyword}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">نوع الفرصة: </span>
+                  <span className="font-bold">
+                    {OPPORTUNITY_TYPE_META[seo.opportunity_type].emoji} {seo.opportunity_type_label}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">العرض المقترح: </span>
+                  <span className="font-bold">{seo.suggested_offer}</span>
+                </div>
+              </div>
+              <ul className="space-y-1 pt-1 border-t border-emerald-500/15">
+                {seo.reasons.slice(0, 2).map((r) => (
+                  <li key={r} className="text-[11px] text-muted-foreground leading-snug flex gap-1.5">
+                    <span className="text-emerald-400/70">•</span>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="flex gap-1 bg-secondary/60 p-1 rounded-lg">
             <button
