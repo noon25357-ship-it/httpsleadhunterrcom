@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { MessageSquare, Sparkles } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
-import { generateSmartOutreach, READINESS_BADGE } from "@/lib/smartOutreach";
+import { generateSmartOutreach, generateShortOffer, READINESS_BADGE } from "@/lib/smartOutreach";
 import { calculateSEOOpportunity } from "@/lib/seoOpportunity";
 import SmartOutreachModal from "./SmartOutreachModal";
 
@@ -15,8 +15,8 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
   const outreach = useMemo(() => generateSmartOutreach(lead), [lead]);
   const seo = useMemo(() => calculateSEOOpportunity(lead), [lead]);
   const meta = READINESS_BADGE[outreach.contact_readiness_level];
-  const showVisibility = seo.level !== "weak";
-  const seoReason = seo.reasons[0];
+  const showVisibility = seo.level === "strong";
+  const shortOffer = useMemo(() => generateShortOffer(lead, outreach.niche), [lead, outreach.niche]);
 
   return (
     <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 flex flex-col gap-2.5">
