@@ -16,11 +16,12 @@ import ContactModal from "@/components/ContactModal";
 import ScanningOverlay from "@/components/ScanningOverlay";
 import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
 import { calculateBuyingSignal } from "@/lib/buyingSignals";
+import { calculateSEOOpportunity } from "@/lib/seoOpportunity";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
 
-type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot";
+type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot" | "seoStrong";
 const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
   { id: "all",          label: "كل الفرص" },
   { id: "Hot",          label: "🔥 Hot فقط" },
@@ -28,6 +29,7 @@ const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
   { id: "Cold",         label: "🧊 Cold فقط" },
   { id: "noWebsiteHot", label: "بدون موقع + Hot" },
   { id: "phoneHot",     label: "لديه رقم + Hot" },
+  { id: "seoStrong",    label: "🌿 فرص ظهور قوية" },
 ];
 
 const Dashboard = () => {
@@ -47,6 +49,7 @@ const Dashboard = () => {
   const [searchStats, setSearchStats] = useState<SearchStats | null>(null);
   const [signalFilter, setSignalFilter] = useState<SignalFilter>("all");
   const [sortBySignal, setSortBySignal] = useState(true);
+  const [sortBySEO, setSortBySEO] = useState(false);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
@@ -141,12 +144,16 @@ const Dashboard = () => {
         arr = arr.filter(l => !l.hasWebsite && l.buying_signal_status === "Hot"); break;
       case "phoneHot":
         arr = arr.filter(l => !!l.phone && l.buying_signal_status === "Hot"); break;
+      case "seoStrong":
+        arr = arr.filter(l => calculateSEOOpportunity(l).level === "strong"); break;
     }
-    if (sortBySignal) {
+    if (sortBySEO) {
+      arr.sort((a, b) => calculateSEOOpportunity(b).score - calculateSEOOpportunity(a).score);
+    } else if (sortBySignal) {
       arr.sort((a, b) => (b.buying_signal_score ?? 0) - (a.buying_signal_score ?? 0));
     }
     return arr;
-  }, [leads, signalFilter, sortBySignal]);
+  }, [leads, signalFilter, sortBySignal, sortBySEO]);
 
   // ── Stats over current results ──
   const signalStats = useMemo(() => {
@@ -351,7 +358,7 @@ const Dashboard = () => {
                             </button>
                           ))}
                           <button
-                            onClick={() => setSortBySignal((v) => !v)}
+                            onClick={() => { setSortBySignal((v) => !v); if (!sortBySignal) setSortBySEO(false); }}
                             className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                               sortBySignal
                                 ? "bg-primary/15 text-primary border-primary/30"
@@ -360,6 +367,17 @@ const Dashboard = () => {
                             title="ترتيب حسب درجة الإشارة"
                           >
                             ↕ ترتيب حسب الإشارة
+                          </button>
+                          <button
+                            onClick={() => { setSortBySEO((v) => !v); if (!sortBySEO) setSortBySignal(false); }}
+                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                              sortBySEO
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                : "bg-secondary text-secondary-foreground border-border"
+                            }`}
+                            title="الأعلى فرصة ظهور في قوقل"
+                          >
+                            🌿 الأعلى فرصة ظهور
                           </button>
                         </div>
                       )}
