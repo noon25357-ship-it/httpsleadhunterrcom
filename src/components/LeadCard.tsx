@@ -15,6 +15,7 @@ import {
 } from "@/lib/contactIntelligence";
 import { calculateBuyingSignal, SIGNAL_BADGE } from "@/lib/buyingSignals";
 import SEOOpportunityBox from "./SEOOpportunityBox";
+import SmartOutreachBox from "./SmartOutreachBox";
 
 interface LeadCardProps {
   lead: Lead;
@@ -199,6 +200,9 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
           </div>
         </div>
       )}
+
+      {/* ── Smart Outreach Assistant ── */}
+      <SmartOutreachBox lead={lead} onMarkContacted={onWhatsApp} />
 
       {/* ── SEO Opportunity Box ── */}
       <SEOOpportunityBox lead={lead} />

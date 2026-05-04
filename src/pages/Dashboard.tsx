@@ -17,11 +17,16 @@ import ScanningOverlay from "@/components/ScanningOverlay";
 import { searchRealPlaces, generateMockLeads, type Lead, type SearchFilters, type SearchStats } from "@/lib/leadData";
 import { calculateBuyingSignal } from "@/lib/buyingSignals";
 import { calculateSEOOpportunity } from "@/lib/seoOpportunity";
+import { calculateContactReadiness } from "@/lib/smartOutreach";
 import { trackEvent } from "@/lib/analytics";
 import { LEAD_STATUSES } from "@/lib/leadStatuses";
 import { useLeadManager } from "@/hooks/useLeadManager";
 
-type SignalFilter = "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot" | "seoStrong" | "noWebsiteStrong";
+type SignalFilter =
+  | "all" | "Hot" | "Warm" | "Cold" | "noWebsiteHot" | "phoneHot"
+  | "seoStrong" | "noWebsiteStrong"
+  | "outreachHot" | "hasPhone" | "noWebsiteReady" | "ratingNoWebsite" | "needsFollowUp";
+
 const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
   { id: "all",              label: "كل الفرص" },
   { id: "Hot",              label: "🔥 Hot فقط" },
@@ -31,7 +36,15 @@ const SIGNAL_FILTERS: Array<{ id: SignalFilter; label: string }> = [
   { id: "phoneHot",         label: "لديه رقم + Hot" },
   { id: "seoStrong",        label: "🌿 فرص ظهور قوية" },
   { id: "noWebsiteStrong",  label: "💎 بدون موقع + فرصة قوية" },
+  { id: "outreachHot",      label: "🟢 جاهز للتواصل" },
+  { id: "hasPhone",         label: "📱 عنده رقم/واتساب" },
+  { id: "noWebsiteReady",   label: "بدون موقع + جاهز" },
+  { id: "ratingNoWebsite",  label: "تقييم جيد + بدون موقع" },
+  { id: "needsFollowUp",    label: "يحتاج متابعة" },
 ];
+
+const OUTREACH_FILTER_IDS: SignalFilter[] = ["outreachHot", "hasPhone", "noWebsiteReady", "ratingNoWebsite", "needsFollowUp"];
+const VISIBILITY_FILTER_IDS: SignalFilter[] = ["seoStrong", "noWebsiteStrong"];
 
 const Dashboard = () => {
   const navigate = useNavigate();
