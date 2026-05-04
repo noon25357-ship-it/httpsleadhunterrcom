@@ -406,7 +406,37 @@ const Dashboard = () => {
                             </button>
                           </div>
 
-                          {/* Visibility filters */}
+                          {/* Outreach filters (Smart Outreach Assistant) */}
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide border-t border-border/40 pt-2">
+                            <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider px-1">
+                              فلاتر التواصل
+                            </span>
+                            {SIGNAL_FILTERS.filter(f => OUTREACH_FILTER_IDS.includes(f.id)).map((f) => (
+                              <button
+                                key={f.id}
+                                onClick={() => setSignalFilter(f.id)}
+                                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                  signalFilter === f.id
+                                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                    : "bg-secondary text-secondary-foreground border-border"
+                                }`}
+                              >
+                                {f.label}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => { setSortByOutreach((v) => !v); if (!sortByOutreach) { setSortBySignal(false); setSortBySEO(false); } }}
+                              className={`shrink-0 ml-auto px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                sortByOutreach
+                                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                  : "bg-secondary text-secondary-foreground border-border"
+                              }`}
+                              title="الأعلى جاهزية للتواصل"
+                            >
+                              🟢 الأعلى جاهزية
+                            </button>
+                          </div>
+
                           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide border-t border-border/40 pt-2">
                             <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider px-1">
                               فلاتر الظهور
