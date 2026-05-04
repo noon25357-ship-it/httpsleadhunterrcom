@@ -64,6 +64,7 @@ const Dashboard = () => {
   const [signalFilter, setSignalFilter] = useState<SignalFilter>("all");
   const [sortBySignal, setSortBySignal] = useState(true);
   const [sortBySEO, setSortBySEO] = useState(false);
+  const [sortByOutreach, setSortByOutreach] = useState(false);
 
   const {
     savedLeads, fetchSavedLeads, saveLead, deleteLead,
