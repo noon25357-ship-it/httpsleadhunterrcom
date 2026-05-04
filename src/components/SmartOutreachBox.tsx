@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { MessageSquare, Sparkles } from "lucide-react";
 import type { Lead } from "@/lib/leadData";
 import { generateSmartOutreach, READINESS_BADGE } from "@/lib/smartOutreach";
+import { calculateSEOOpportunity } from "@/lib/seoOpportunity";
 import SmartOutreachModal from "./SmartOutreachModal";
 
 interface Props {
@@ -12,7 +13,10 @@ interface Props {
 const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
   const [open, setOpen] = useState(false);
   const outreach = useMemo(() => generateSmartOutreach(lead), [lead]);
+  const seo = useMemo(() => calculateSEOOpportunity(lead), [lead]);
   const meta = READINESS_BADGE[outreach.contact_readiness_level];
+  const showVisibility = seo.level !== "weak";
+  const seoReason = seo.reasons[0];
 
   return (
     <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 flex flex-col gap-2.5">
@@ -38,18 +42,30 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
         <span className="font-bold">{outreach.suggested_offer}</span>
       </div>
 
-      {/* Tags */}
-      {outreach.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {outreach.tags.map((t) => (
-            <span
-              key={t}
-              className="text-[10px] text-muted-foreground bg-secondary/60 border border-border/50 px-1.5 py-0.5 rounded"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
+      {/* Tags + Visibility */}
+      <div className="flex flex-wrap gap-1">
+        {showVisibility && (
+          <span
+            className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded"
+            title={seoReason}
+          >
+            🔍 فرصة ظهور · {seo.suggested_local_keyword}
+          </span>
+        )}
+        {outreach.tags.map((t) => (
+          <span
+            key={t}
+            className="text-[10px] text-muted-foreground bg-secondary/60 border border-border/50 px-1.5 py-0.5 rounded"
+          >
+            {t}
+          </span>
+        ))}
+      </div>
+
+      {showVisibility && seoReason && (
+        <p className="text-[10.5px] text-muted-foreground leading-snug">
+          🌿 {seoReason}
+        </p>
       )}
 
       {/* CTA */}
@@ -64,6 +80,7 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
       <SmartOutreachModal
         lead={lead}
         outreach={outreach}
+        seo={seo}
         open={open}
         onClose={() => setOpen(false)}
         onMarkContacted={onMarkContacted}
