@@ -3,10 +3,12 @@ import { X, Copy, MessageCircle, CheckCircle2, ChevronDown } from "lucide-react"
 import { toast } from "sonner";
 import type { Lead } from "@/lib/leadData";
 import { cleanSaudiPhone, type SmartOutreach } from "@/lib/smartOutreach";
+import { SEO_BADGE, OPPORTUNITY_TYPE_META, type SEOOpportunity } from "@/lib/seoOpportunity";
 
 interface Props {
   lead: Lead;
   outreach: SmartOutreach;
+  seo?: SEOOpportunity;
   open: boolean;
   onClose: () => void;
   onMarkContacted?: (lead: Lead) => void;
@@ -14,7 +16,7 @@ interface Props {
 
 type Tab = "first" | "follow";
 
-const SmartOutreachModal = ({ lead, outreach, open, onClose, onMarkContacted }: Props) => {
+const SmartOutreachModal = ({ lead, outreach, seo, open, onClose, onMarkContacted }: Props) => {
   const [tab, setTab] = useState<Tab>("first");
   const [first, setFirst] = useState(outreach.first_whatsapp_message);
   const [follow, setFollow] = useState(outreach.follow_up_message);
