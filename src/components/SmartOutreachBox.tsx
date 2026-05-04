@@ -36,36 +36,19 @@ const SmartOutreachBox = ({ lead, onMarkContacted }: Props) => {
         💡 {outreach.contact_reason}
       </p>
 
-      {/* Suggested offer */}
+      {/* Suggested offer (short) */}
       <div className="text-[11px] text-foreground bg-background/60 border border-border/40 rounded-lg px-2 py-1.5">
         <span className="text-muted-foreground">العرض:</span>{" "}
-        <span className="font-bold">{outreach.suggested_offer}</span>
+        <span className="font-bold">{shortOffer}</span>
       </div>
 
-      {/* Tags + Visibility */}
-      <div className="flex flex-wrap gap-1">
-        {showVisibility && (
-          <span
-            className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded"
-            title={seoReason}
-          >
-            🔍 فرصة ظهور · {seo.suggested_local_keyword}
-          </span>
-        )}
-        {outreach.tags.map((t) => (
-          <span
-            key={t}
-            className="text-[10px] text-muted-foreground bg-secondary/60 border border-border/50 px-1.5 py-0.5 rounded"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-
-      {showVisibility && seoReason && (
-        <p className="text-[10.5px] text-muted-foreground leading-snug">
-          🌿 {seoReason}
-        </p>
+      {/* Subtle visibility hint (no level/score) */}
+      {showVisibility && (
+        <div className="text-[10.5px] text-muted-foreground/90 inline-flex items-center gap-1">
+          <span>🔍</span>
+          <span>فرصة ظهور:</span>
+          <span className="text-foreground/80 font-semibold truncate">{seo.suggested_local_keyword}</span>
+        </div>
       )}
 
       {/* CTA */}
