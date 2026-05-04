@@ -14,6 +14,7 @@ import {
   type ContactChannel,
 } from "@/lib/contactIntelligence";
 import { calculateBuyingSignal, SIGNAL_BADGE } from "@/lib/buyingSignals";
+import SEOOpportunityBox from "./SEOOpportunityBox";
 
 interface LeadCardProps {
   lead: Lead;
@@ -198,6 +199,9 @@ const LeadCard = ({ lead, index, onContact, onSave, onWhatsApp, onCopy, savedSta
           </div>
         </div>
       )}
+
+      {/* ── SEO Opportunity Box ── */}
+      <SEOOpportunityBox lead={lead} />
 
       {/* ── Subtle insight chips (max 2 buying-signal reasons) + quick copy ── */}
       <div className="flex items-center gap-2 flex-wrap">
